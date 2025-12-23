@@ -147,13 +147,8 @@ pub fn pick_file(app: tauri::AppHandle) -> String {
     app.dialog().file().pick_files(move |file_path| {
         let app_state = app.state::<AppState>();
 
-        if file_path.is_some() {
-            app_state
-                .mail
-                .lock()
-                .unwrap()
-                .add_file(file_path.unwrap())
-                .unwrap();
+        if let Some(path) = file_path {
+            app_state.mail.lock().unwrap().add_file(path).unwrap();
         }
     });
 

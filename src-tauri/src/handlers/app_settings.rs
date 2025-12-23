@@ -233,10 +233,11 @@ pub fn save_and_close_settings(app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
 
     let mail_list_save = app_state.mail_list.lock().unwrap().save_list();
-
-    if mail_list_save.is_err(){
-        wrong_mail_warning(mail_list_save.unwrap_err())
+ 
+    if let Err(invalid_mails) = mail_list_save {
+        wrong_mail_warning(invalid_mails)
     }
+
     else {
         html!{
             div

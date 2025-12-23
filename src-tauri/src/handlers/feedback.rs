@@ -52,13 +52,13 @@ pub fn send_feedback(text: String, app: tauri::AppHandle) -> String {
         let markup: Markup = html! {
             h1.feedback-send-message{("Zpětná vazba byla odeslána, děkujeme!")}
         };
-        return markup.into_string();
+        markup.into_string()
     } else {
         let markup: Markup = html! {
             h1.feedback-send-message{"Nepodařilo se odeslat zpětnou vazbu."
             br;
             "Kontaktujte prosím administrátora!"}
         };
-        return markup.into_string();
+        markup.into_string()
     }
 }
