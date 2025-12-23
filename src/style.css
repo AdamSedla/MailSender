@@ -586,3 +586,18 @@ button:hover {
   font-weight: bold;
 
 }
+
+.invalid-password {
+  outline-width: 5px;
+  outline-style: solid;
+  outline-color: red;
+}
+
+.invalid-password-title {
+  color: red;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 30px;
+  margin-top: 12%;
+  position: fixed;
+}

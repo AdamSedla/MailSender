@@ -21,15 +21,74 @@ pub fn open_settings_password() -> String {
                 h1.password-title{("Zadejte prosím heslo pro vstup do nastavení")}
                 input.password-input
                 placeholder="Heslo"
+                name="text"
                 {}
                 button.password-check-button.save
-                hx-post="command:open_settings"
+                hx-post="command:check_password"
                 hx-trigger="click"
-                hx-target="#app-body"
+                hx-target="#overlay-password"
+                hx-include="[name='text']"
                 hx-swap="outerHTML"
                 {("ověřit")}
             }
         }
+    };
+
+    markup.into_string()
+}
+
+#[tauri::command]
+pub fn check_password(app: tauri::AppHandle, text: String) -> String{
+    let app_state = app.state::<AppState>();
+
+    if app_state.config.lock().unwrap().settings_password_check(&text) {
+        correct_password_handler()
+    }
+    else {
+        invalid_password_warning()
+    }
+}
+
+#[tauri::command]
+pub fn invalid_password_warning() -> String {
+    let markup: Markup = html! {
+        div .overlay .most-top #overlay-password{
+            div .overlay-window{
+                button.close-button
+                hx-post="command:close_settings_password"
+                hx-trigger="click"
+                hx-target="#overlay-password"
+                hx-swap="outerHTML"
+                {("X")}
+                h1.password-title{("Zadejte prosím heslo pro vstup do nastavení")}
+                h3.invalid-password-title{("Nesprávné heslo!")}
+                input.password-input.invalid-password
+                placeholder="Heslo"
+                name="text"
+                {}
+                button.password-check-button.save
+                hx-post="command:check_password"
+                hx-trigger="click"
+                hx-target="#overlay-password"
+                hx-include="[name='text']"
+                hx-swap="outerHTML"
+                {("ověřit")}
+            }
+        }
+    };
+
+    markup.into_string()
+}
+
+#[tauri::command]
+pub fn correct_password_handler() -> String {
+    let markup: Markup = html!{
+        div
+        hx-trigger="load delay:1ms"
+        hx-swap="outerHTML"
+        hx-post="command:open_settings"
+        hx-target="#app-body"
+        {}
     };
 
     markup.into_string()

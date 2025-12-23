@@ -44,6 +44,9 @@ mod handlers{
 /* 
 app_settings:
     - open_settings_password
+    - check_password
+    - invalid_password_warning
+    - correct_password_handler
     - close_settings_password
     - open_settings
     - open_discard_overlay
@@ -193,6 +196,9 @@ pub fn run() {
             close_settings,
             open_discard_overlay,
             close_discard_overlay,
+            check_password,
+            invalid_password_warning,
+            correct_password_handler
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
