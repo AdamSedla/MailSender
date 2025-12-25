@@ -1,3 +1,4 @@
+#![deny(clippy::unwrap_used)]
 
 //external imports
 
