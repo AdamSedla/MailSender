@@ -2,6 +2,7 @@ use maud::{html, Markup};
 use tauri::Manager;
 
 use crate::AppState;
+use crate::backend::error_handling::error_message_mutex_lock;
 //---------------------------
 
 #[tauri::command]
@@ -21,7 +22,7 @@ pub fn open_other(app: tauri::AppHandle) -> String {
                 {("X")}
                 h1.overlay-title{("zadejte prosím E-mailové adresy")}
                 div.other-mail-buttons #other-mail-buttons
-                {(app_state.other_mail_list.lock().unwrap().render_input_fields())}
+                {(app_state.other_mail_list.lock().unwrap_or_else(|e| {error_message_mutex_lock(app.clone(), "other_mail_list"); e.into_inner()}).render_input_fields())}
                 div.bottom-button-row{
                     button.add-button
                     hx-post="command:add_other_mail_row"
@@ -40,7 +41,7 @@ pub fn open_other(app: tauri::AppHandle) -> String {
 pub fn add_other_mail_row(app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
 
-    let index = app_state.other_mail_list.lock().unwrap().size();
+    let index = app_state.other_mail_list.lock().unwrap_or_else(|e| {error_message_mutex_lock(app.clone(), "other_mail_list"); e.into_inner()}).size();
 
     let markup: Markup = html! {
         div.other-mail-button-row{
@@ -64,8 +65,8 @@ pub fn add_other_mail_row(app: tauri::AppHandle) -> String {
         div #other-mail-list-placeholder {}
     };
 
-    app_state.other_mail_list.lock().unwrap().increment_size();
-    app_state.other_mail_list.lock().unwrap().add_person();
+    app_state.other_mail_list.lock().unwrap_or_else(|e| {error_message_mutex_lock(app.clone(), "other_mail_list"); e.into_inner()}).increment_size();
+    app_state.other_mail_list.lock().unwrap_or_else(|e| {error_message_mutex_lock(app.clone(), "other_mail_list"); e.into_inner()}).add_person();
 
     markup.into_string()
 }

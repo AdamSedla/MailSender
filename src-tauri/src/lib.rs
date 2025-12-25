@@ -13,6 +13,7 @@ mod backend{
     pub mod mail_list_utils;
     pub mod mail_sender;
     pub mod other_mail_utils;
+    pub mod error_handling;
 }
 
 use crate::backend::config::Config;

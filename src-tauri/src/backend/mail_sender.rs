@@ -37,6 +37,9 @@ pub enum MailSenderError {
 
     #[error("Couldn't open a remote connection to gmail")]
     NoRemoteConnection,
+
+    #[error("ErrorSendingFeedbackMail")]
+    ErrorSendingFeedbackMail
 }
 
 #[derive(Debug, PartialEq, Clone)]
