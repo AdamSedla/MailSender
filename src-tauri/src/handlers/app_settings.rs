@@ -41,7 +41,7 @@ pub fn open_settings_password() -> String {
 pub fn check_password(app: tauri::AppHandle, text: String) -> String{
     let app_state = app.state::<AppState>();
 
-    if app_state.config.lock().unwrap().settings_password_check(&text) {
+    if app_state.config.lock().settings_password_check(&text) {
         correct_password_handler()
     }
     else {
@@ -107,8 +107,8 @@ pub fn close_settings_password() -> String {
 pub fn open_settings(app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
 
-    app_state.mail.lock().unwrap().clear();
-    app_state.other_mail_list.lock().unwrap().clear();
+    app_state.mail.lock().clear();
+    app_state.other_mail_list.lock().clear();
 
     let markup: Markup = html! {
         body #app-body {
@@ -223,7 +223,7 @@ pub fn close_discard_overlay()->String{
 pub fn discard_and_close_settings(app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
 
-    *app_state.mail_list.lock().unwrap() = MailList::load_list();
+    *app_state.mail_list.lock() = MailList::load_list();
 
     close_settings()
 }
@@ -232,7 +232,7 @@ pub fn discard_and_close_settings(app: tauri::AppHandle) -> String {
 pub fn save_and_close_settings(app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
 
-    let mail_list_save = app_state.mail_list.lock().unwrap().save_list();
+    let mail_list_save = app_state.mail_list.lock().save_list();
  
     if let Err(invalid_mails) = mail_list_save {
         wrong_mail_warning(invalid_mails)
@@ -350,7 +350,7 @@ pub fn close_settings() -> String {
 pub fn load_settings_mechanics(app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
 
-    let mail_list = app_state.mail_list.lock().unwrap();
+    let mail_list = app_state.mail_list.lock();
 
     let markup: Markup = html! {
         @for i in 0..24 {
@@ -384,7 +384,7 @@ pub fn load_settings_mechanics(app: tauri::AppHandle) -> String {
 pub fn load_settings_technics(app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
 
-    let mail_list = app_state.mail_list.lock().unwrap();
+    let mail_list = app_state.mail_list.lock();
 
     let markup: Markup = html! {
     @for i in 24..29 {
@@ -421,7 +421,7 @@ pub fn edit_person(id: String, app: tauri::AppHandle) -> String {
 
     let app_state = app.state::<AppState>();
 
-    let mail_list = app_state.mail_list.lock().unwrap();
+    let mail_list = app_state.mail_list.lock();
 
     let person = match mail_list.load_person(id) {
         Some(person) => person,
@@ -478,7 +478,7 @@ pub fn edit_person(id: String, app: tauri::AppHandle) -> String {
         hx-vals={(format!(r#""id": {id}"#))}
         hx-post="command:mark_person"
         {}
-        @if let Some(id) = *app_state.settings_current_person_id.lock().unwrap() {
+        @if let Some(id) = *app_state.settings_current_person_id.lock() {
             div
             hx-trigger="load delay:1ms"
             hx-swap="outerHTML"
@@ -489,7 +489,7 @@ pub fn edit_person(id: String, app: tauri::AppHandle) -> String {
         }
     };
 
-    *app_state.settings_current_person_id.lock().unwrap() = Some(id);
+    *app_state.settings_current_person_id.lock() = Some(id);
 
     markup.into_string()
 }
@@ -500,7 +500,7 @@ pub fn mark_person(id: String, app: tauri::AppHandle) -> String {
 
     let app_state = app.state::<AppState>();
 
-    let mail_list = app_state.mail_list.lock().unwrap();
+    let mail_list = app_state.mail_list.lock();
 
     let person = match mail_list.load_person(id) {
         Some(person) => person,
@@ -525,7 +525,7 @@ pub fn unmark_person(id: String, app: tauri::AppHandle) -> String {
 
     let app_state = app.state::<AppState>();
 
-    let mail_list = app_state.mail_list.lock().unwrap();
+    let mail_list = app_state.mail_list.lock();
 
     let person = match mail_list.load_person(id) {
         Some(person) => person,
@@ -558,7 +558,6 @@ pub fn edit_person_name(app: tauri::AppHandle, id: String, text: String) {
     app_state
         .mail_list
         .lock()
-        .unwrap()
         .save_person_name(id, text);
 }
 
@@ -571,6 +570,5 @@ pub fn edit_person_mail(app: tauri::AppHandle, id: String, text: String) {
     app_state
         .mail_list
         .lock()
-        .unwrap()
         .save_person_mail(id, text);
 }

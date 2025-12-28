@@ -8,9 +8,9 @@ use crate::AppState;
 #[tauri::command]
 pub fn send(app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
-    let mut mail = app_state.mail.lock().unwrap();
-    let mut other_mail_list = app_state.other_mail_list.lock().unwrap();
-    let config = app_state.config.lock().unwrap().clone();
+    let mut mail = app_state.mail.lock();
+    let mut other_mail_list = app_state.other_mail_list.lock();
+    let config = app_state.config.lock().clone();
 
     let file_valid = mail.file_is_valid();
     let mail_list_not_empty = mail.person_list_is_valid() && other_mail_list.is_empty();
@@ -47,7 +47,7 @@ pub fn send(app: tauri::AppHandle) -> String {
 pub fn load_mechanics(app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
 
-    let mail_list = app_state.mail_list.lock().unwrap();
+    let mail_list = app_state.mail_list.lock();
 
     let markup: Markup = html! {
         @for i in 0..24 {
@@ -72,7 +72,7 @@ pub fn load_mechanics(app: tauri::AppHandle) -> String {
 pub fn load_technics(app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
 
-    let mail_list = app_state.mail_list.lock().unwrap();
+    let mail_list = app_state.mail_list.lock();
 
     let markup: Markup = html! {
         @for i in 24..29 {
@@ -104,9 +104,9 @@ pub fn add_person(id: String, app: tauri::AppHandle) -> String {
     let id: usize = id.parse().unwrap();
     let app_state = app.state::<AppState>();
 
-    let person = app_state.mail_list.lock().unwrap().load_person(id).unwrap();
+    let person = app_state.mail_list.lock().load_person(id).unwrap();
 
-    app_state.mail.lock().unwrap().add_person(person.clone());
+    app_state.mail.lock().add_person(person.clone());
 
     let markup: Markup = html! {
         button.middle-button.clicked
@@ -125,9 +125,9 @@ pub fn remove_person(id: String, app: tauri::AppHandle) -> String {
     let id: usize = id.parse().unwrap();
     let app_state = app.state::<AppState>();
 
-    let person = app_state.mail_list.lock().unwrap().load_person(id).unwrap();
+    let person = app_state.mail_list.lock().load_person(id).unwrap();
 
-    app_state.mail.lock().unwrap().remove_person(person.clone());
+    app_state.mail.lock().remove_person(person.clone());
 
     let markup: Markup = html! {
         button.middle-button
@@ -148,7 +148,7 @@ pub fn pick_file(app: tauri::AppHandle) -> String {
         let app_state = app.state::<AppState>();
 
         if let Some(path) = file_path {
-            app_state.mail.lock().unwrap().add_file(path).unwrap();
+            app_state.mail.lock().add_file(path).unwrap();
         }
     });
 

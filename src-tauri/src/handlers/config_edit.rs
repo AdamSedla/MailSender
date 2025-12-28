@@ -9,7 +9,7 @@ use crate::backend::config::Config;
 #[tauri::command]
 pub fn open_settings_config(app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
-    let config = app_state.config.lock().unwrap().clone();
+    let config = app_state.config.lock().clone();
 
     let markup: Markup = html! {
         div #overlay-settings-config .overlay{
@@ -141,42 +141,42 @@ pub fn open_settings_config(app: tauri::AppHandle) -> String {
 pub fn save_sender_name(app: tauri::AppHandle, text: String) {
     let app_state = app.state::<AppState>();
 
-    app_state.config.lock().unwrap().save_sender_name(text);
+    app_state.config.lock().save_sender_name(text);
 }
 
 #[tauri::command]
 pub fn save_sender_mail(app: tauri::AppHandle, text: String) {
     let app_state = app.state::<AppState>();
 
-    app_state.config.lock().unwrap().save_sender_mail(text);
+    app_state.config.lock().save_sender_mail(text);
 }
 
 #[tauri::command]
 pub fn save_sender_password(app: tauri::AppHandle, text: String) {
     let app_state = app.state::<AppState>();
 
-    app_state.config.lock().unwrap().save_sender_password(text);
+    app_state.config.lock().save_sender_password(text);
 }
 
 #[tauri::command]
 pub fn save_title(app: tauri::AppHandle, text: String) {
     let app_state = app.state::<AppState>();
 
-    app_state.config.lock().unwrap().save_title(text);
+    app_state.config.lock().save_title(text);
 }
 
 #[tauri::command]
 pub fn save_smtp_transport(app: tauri::AppHandle, text: String) {
     let app_state = app.state::<AppState>();
 
-    app_state.config.lock().unwrap().save_smtp_transport(text);
+    app_state.config.lock().save_smtp_transport(text);
 }
 
 #[tauri::command]
 pub fn save_feedback_mail(app: tauri::AppHandle, text: String) {
     let app_state = app.state::<AppState>();
 
-    app_state.config.lock().unwrap().save_feedback_mail(text);
+    app_state.config.lock().save_feedback_mail(text);
 }
 
 #[tauri::command]
@@ -186,7 +186,6 @@ pub fn save_feedback_recepient(app: tauri::AppHandle, text: String) {
     app_state
         .config
         .lock()
-        .unwrap()
         .save_feedback_recepient(text);
 }
 
@@ -194,7 +193,7 @@ pub fn save_feedback_recepient(app: tauri::AppHandle, text: String) {
 pub fn save_feedback_subject(app: tauri::AppHandle, text: String) {
     let app_state = app.state::<AppState>();
 
-    app_state.config.lock().unwrap().save_feedback_subject(text);
+    app_state.config.lock().save_feedback_subject(text);
 }
 
 #[tauri::command]
@@ -204,7 +203,6 @@ pub fn save_settings_password(app: tauri::AppHandle, text: String) {
     app_state
         .config
         .lock()
-        .unwrap()
         .save_settings_password(text);
 }
 
@@ -212,7 +210,7 @@ pub fn save_settings_password(app: tauri::AppHandle, text: String) {
 pub fn save_and_close_settings_config(app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
 
-    app_state.config.lock().unwrap().save_config();
+    app_state.config.lock().save_config();
 
     close_settings_config()
 }
@@ -221,7 +219,7 @@ pub fn save_and_close_settings_config(app: tauri::AppHandle) -> String {
 pub fn discard_and_close_settings_config(app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
 
-    *app_state.config.lock().unwrap() = Config::load_config();
+    *app_state.config.lock() = Config::load_config();
 
     close_settings_config()
 }

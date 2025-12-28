@@ -46,7 +46,7 @@ pub fn close_feedback() -> String {
 #[tauri::command]
 pub fn send_feedback(text: String, app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
-    let config = app_state.config.lock().unwrap().clone();
+    let config = app_state.config.lock().clone();
 
     if mail_sender::MailSender::send_feedback(text, config).is_ok() {
         let markup: Markup = html! {

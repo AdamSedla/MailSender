@@ -2082,6 +2082,7 @@ dependencies = [
  "lettre",
  "maud",
  "mime_guess",
+ "parking_lot",
  "ron",
  "serde",
  "serde_json",

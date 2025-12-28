@@ -9,16 +9,16 @@ use std::sync::LazyLock;
 use crate::backend::mail_sender::MailSenderError;
 
 //---------------------------
-
+//will be used for another error function later
 pub fn error_message_mutex_lock(app: tauri::AppHandle, mutex_type: &str) {
     static ERROR_MESSAGE_TITLE: &str = "Došlo k chybě při běhu aplikace";
     static ERROR_MESSAGE_TEXT: &str = "Při běhu aplikace došlo k neočekávané chybě.\n\nAutorovi aplikace byl odeslán E-mail.\n\nInformujte prosím vedoucího.";
     let error_message_mail: String = format!("Neúspěšný pokus o uzamčení MUTEX lock: {mutex_type}");
 
-    //error upozornění autorovi aplikace
+    //error notification to author's E-mail
     let _ = send_error_mail(error_message_mail);
     
-    //Error upozornění a ukončení aplikace
+    //Error notification to user and App's end
     app.dialog()
     .message(ERROR_MESSAGE_TEXT.to_string())
     .kind(MessageDialogKind::Info)

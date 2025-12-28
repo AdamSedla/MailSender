@@ -2,7 +2,7 @@
 
 //external imports
 
-use std::sync::Mutex;
+use parking_lot::Mutex;
 use tauri::Manager;
 
 //---------------------------
