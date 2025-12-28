@@ -4,6 +4,7 @@ use tauri::Manager;
 use crate::AppState;
 use crate::backend::mail_list_utils;
 use crate::MailList;
+use crate::backend::error_handling::error_id_parse;
 
 //---------------------------
 
@@ -417,7 +418,7 @@ pub fn load_settings_technics(app: tauri::AppHandle) -> String {
 
 #[tauri::command]
 pub fn edit_person(id: String, app: tauri::AppHandle) -> String {
-    let id: usize = id.parse().unwrap();
+    let id: usize = id.parse().unwrap_or_else(|_| error_id_parse(app.clone(), id));
 
     let app_state = app.state::<AppState>();
 
@@ -496,7 +497,7 @@ pub fn edit_person(id: String, app: tauri::AppHandle) -> String {
 
 #[tauri::command]
 pub fn mark_person(id: String, app: tauri::AppHandle) -> String {
-    let id: usize = id.parse().unwrap();
+    let id: usize = id.parse().unwrap_or_else(|_| error_id_parse(app.clone(), id));
 
     let app_state = app.state::<AppState>();
 
@@ -521,7 +522,7 @@ pub fn mark_person(id: String, app: tauri::AppHandle) -> String {
 
 #[tauri::command]
 pub fn unmark_person(id: String, app: tauri::AppHandle) -> String {
-    let id: usize = id.parse().unwrap();
+    let id: usize = id.parse().unwrap_or_else(|_| error_id_parse(app.clone(), id));
 
     let app_state = app.state::<AppState>();
 
@@ -551,7 +552,7 @@ pub fn unmark_person(id: String, app: tauri::AppHandle) -> String {
 
 #[tauri::command]
 pub fn edit_person_name(app: tauri::AppHandle, id: String, text: String) {
-    let id: usize = id.parse().unwrap();
+    let id: usize = id.parse().unwrap_or_else(|_| error_id_parse(app.clone(), id));
 
     let app_state = app.state::<AppState>();
 
@@ -563,7 +564,7 @@ pub fn edit_person_name(app: tauri::AppHandle, id: String, text: String) {
 
 #[tauri::command]
 pub fn edit_person_mail(app: tauri::AppHandle, id: String, text: String) {
-    let id: usize = id.parse().unwrap();
+    let id: usize = id.parse().unwrap_or_else(|_| error_id_parse(app.clone(), id));
 
     let app_state = app.state::<AppState>();
 

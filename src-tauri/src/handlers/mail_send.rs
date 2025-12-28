@@ -3,6 +3,7 @@ use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
 
 use crate::AppState;
+use crate::backend::error_handling::error_id_parse;
 //---------------------------
 
 #[tauri::command]
@@ -101,7 +102,7 @@ pub fn load_technics(app: tauri::AppHandle) -> String {
 
 #[tauri::command]
 pub fn add_person(id: String, app: tauri::AppHandle) -> String {
-    let id: usize = id.parse().unwrap();
+    let id: usize = id.parse().unwrap_or_else(|_| error_id_parse(app.clone(), id));
     let app_state = app.state::<AppState>();
 
     let person = app_state.mail_list.lock().load_person(id).unwrap();
@@ -122,7 +123,7 @@ pub fn add_person(id: String, app: tauri::AppHandle) -> String {
 
 #[tauri::command]
 pub fn remove_person(id: String, app: tauri::AppHandle) -> String {
-    let id: usize = id.parse().unwrap();
+    let id: usize = id.parse().unwrap_or_else(|_| error_id_parse(app.clone(), id));
     let app_state = app.state::<AppState>();
 
     let person = app_state.mail_list.lock().load_person(id).unwrap();

@@ -2,6 +2,7 @@ use maud::{html, Markup};
 use tauri::Manager;
 
 use crate::AppState;
+use crate::backend::error_handling::error_id_parse;
 //---------------------------
 
 #[tauri::command]
@@ -74,7 +75,7 @@ pub fn add_other_mail_row(app: tauri::AppHandle) -> String {
 pub fn edit_mail(app: tauri::AppHandle, index: String, text: String) {
     let app_state = app.state::<AppState>();
 
-    let index: usize = index.parse().unwrap();
+    let index: usize = index.parse().unwrap_or_else(|_| error_id_parse(app.clone(), index));
 
     app_state
         .other_mail_list
@@ -85,7 +86,7 @@ pub fn edit_mail(app: tauri::AppHandle, index: String, text: String) {
 #[tauri::command]
 pub fn remove_other_row(app: tauri::AppHandle, index: String) -> String {
     let app_state: tauri::State<'_, AppState> = app.state::<AppState>();
-    let index: usize = index.parse().unwrap();
+    let index: usize = index.parse().unwrap_or_else(|_| error_id_parse(app.clone(), index));
 
     app_state
         .other_mail_list

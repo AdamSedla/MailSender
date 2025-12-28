@@ -9,16 +9,20 @@ use std::sync::LazyLock;
 use crate::backend::mail_sender::MailSenderError;
 
 //---------------------------
-//will be used for another error function later
-pub fn error_message_mutex_lock(app: tauri::AppHandle, mutex_type: &str) {
+pub fn error_id_parse(app: tauri::AppHandle, original_id: String) -> usize {
+    show_user_error_and_quit(app);
+
+    let error_message_mail: String = format!("Neúspěšný pokus o ID_parse. originální String: {original_id}");
+
+    let _ = send_error_mail(error_message_mail);
+
+    0
+}
+
+pub fn show_user_error_and_quit(app: tauri::AppHandle){
     static ERROR_MESSAGE_TITLE: &str = "Došlo k chybě při běhu aplikace";
     static ERROR_MESSAGE_TEXT: &str = "Při běhu aplikace došlo k neočekávané chybě.\n\nAutorovi aplikace byl odeslán E-mail.\n\nInformujte prosím vedoucího.";
-    let error_message_mail: String = format!("Neúspěšný pokus o uzamčení MUTEX lock: {mutex_type}");
 
-    //error notification to author's E-mail
-    let _ = send_error_mail(error_message_mail);
-    
-    //Error notification to user and App's end
     app.dialog()
     .message(ERROR_MESSAGE_TEXT.to_string())
     .kind(MessageDialogKind::Info)
@@ -33,7 +37,6 @@ pub fn error_message_mutex_lock(app: tauri::AppHandle, mutex_type: &str) {
 pub fn end_app(app: tauri::AppHandle){
     app.exit(0);
 }
-
 
 pub fn send_error_mail(text: String) -> Result<(), MailSenderError> {
     //must be error proof, so config will be hard wired
