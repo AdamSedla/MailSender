@@ -30,7 +30,7 @@ pub fn send(app: tauri::AppHandle) -> String {
         }.into_string();
     }
 
-    mail.send(other_mail_list.export_other_mail_list(), config).unwrap();
+    mail.send(other_mail_list.export_other_mail_list(), config, app.clone()).unwrap();
 
     html!{
         input.truck.drive-animation
@@ -107,7 +107,7 @@ pub fn add_person(id: String, app: tauri::AppHandle) -> String {
 
     let person = app_state.mail_list.lock().load_person(id).unwrap();
 
-    app_state.mail.lock().add_person(person.clone());
+    app_state.mail.lock().add_person(person.clone(), app.clone());
 
     let markup: Markup = html! {
         button.middle-button.clicked
@@ -128,7 +128,7 @@ pub fn remove_person(id: String, app: tauri::AppHandle) -> String {
 
     let person = app_state.mail_list.lock().load_person(id).unwrap();
 
-    app_state.mail.lock().remove_person(person.clone());
+    app_state.mail.lock().remove_person(person.clone(), app.clone());
 
     let markup: Markup = html! {
         button.middle-button

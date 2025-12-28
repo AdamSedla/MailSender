@@ -13,6 +13,7 @@ use tauri_plugin_dialog::FilePath;
 use thiserror::Error;
 
 use crate::backend::config::Config;
+use crate::backend::error_handling::error_parsing_mail_address;
 use crate::backend::mail_list_utils;
 use crate::backend::mail_list_utils::Person;
 
@@ -55,10 +56,10 @@ pub struct MailSender {
 }
 
 impl MailSender {
-    pub fn add_person(&mut self, person: Person) -> &mut Self {
+    pub fn add_person(&mut self, person: Person, app: tauri::AppHandle) -> &mut Self {
         let person_parsed = Recipient {
             name: person.name,
-            mail: person.mail.parse().unwrap(),
+            mail: person.mail.parse().unwrap_or_else(|_| error_parsing_mail_address(app, person.mail)),
         };
 
         self.people.push(person_parsed);
@@ -66,10 +67,10 @@ impl MailSender {
         self
     }
 
-    pub fn remove_person(&mut self, person: Person) -> &mut Self {
+    pub fn remove_person(&mut self, person: Person, app: tauri::AppHandle) -> &mut Self {
         let person_parsed = Recipient {
             name: person.name,
-            mail: person.mail.parse().unwrap(),
+            mail: person.mail.parse().unwrap_or_else(|_| error_parsing_mail_address(app, person.mail)),
         };
 
         self.people.retain(|x| *x != person_parsed);
@@ -98,10 +99,10 @@ impl MailSender {
     pub fn send(
         &mut self,
         other_mail_list: Vec<mail_list_utils::Person>,
-        config: Config,
+        config: Config, app: tauri::AppHandle
     ) -> Result<()> {
         other_mail_list.iter().for_each(|person| {
-            self.add_person(person.clone());
+            self.add_person(person.clone(), app.clone());
         });
 
         if self.people.is_empty() {

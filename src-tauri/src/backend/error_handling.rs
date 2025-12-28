@@ -1,4 +1,4 @@
-use lettre::Message;
+use lettre::{Address, Message};
 use lettre::transport::smtp::SmtpTransport;
 use lettre::transport::Transport;
 use lettre::message::Mailbox;
@@ -17,6 +17,17 @@ pub fn error_id_parse(app: tauri::AppHandle, original_id: String) -> usize {
     let _ = send_error_mail(error_message_mail);
 
     0
+}
+
+pub fn error_parsing_mail_address(app: tauri::AppHandle, original_mail: String) -> Address {
+    let error_message_mail: String = format!("Neúspěšný pokus o parse E-mailové adresy. originální String: {original_mail}");
+    
+    show_user_error_and_quit(app);
+
+    let _ = send_error_mail(error_message_mail);
+
+        //error@error is valid Addres, so else block is unreachable
+        Address::new("error".to_string(), "error".to_string()).unwrap_or_else(|_| unreachable!())
 }
 
 pub fn show_user_error_and_quit(app: tauri::AppHandle){
