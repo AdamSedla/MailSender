@@ -10,10 +10,10 @@ use crate::backend::mail_sender::MailSenderError;
 
 //---------------------------
 pub fn error_id_parse(app: tauri::AppHandle, original_id: String) -> usize {
-    show_user_error_and_quit(app);
-
     let error_message_mail: String = format!("Neúspěšný pokus o ID_parse. originální String: {original_id}");
-
+    
+    show_user_error_and_quit(app);
+    
     let _ = send_error_mail(error_message_mail);
 
     0
