@@ -15,6 +15,7 @@ mod backend{
     pub mod mail_sender;
     pub mod other_mail_utils;
     pub mod error_handling;
+    pub mod hard_coded_credentials;
 }
 
 use crate::backend::config::Config;

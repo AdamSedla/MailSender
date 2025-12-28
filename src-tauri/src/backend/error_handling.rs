@@ -51,13 +51,9 @@ pub fn end_app(app: tauri::AppHandle){
 
 pub fn send_error_mail(text: String) -> Result<(), MailSenderError> {
     //must be error proof, so config will be hard wired
-    static TITLE: &str = "Chyba v MailSender Postřižín";
-    static SENDER_NAME: &str = <insert sender name>;
-    static SENDER_MAIL: &str = <insert sender mail>;
-    static RECEPIENT_NAME: &str = <insert recepient name>;
-    static RECEPIENT_MAIL: &str = <insert recepient mail>;
-    static SMTP_TRANSPORT: &str = <insert smtp transport method;
-    static CREDENTIALS: LazyLock<Credentials> = LazyLock::new(|| Credentials::new(SENDER_MAIL.to_string(), <insert mail password>.to_string()));
+    use crate::backend::hard_coded_credentials::credentials::*;;
+
+    static CREDENTIALS: LazyLock<Credentials> = LazyLock::new(|| Credentials::new(SENDER_MAIL.to_string(), SENDER_PASSWORD.to_string()));
 
     let mut message_builder = Message::builder();
 
