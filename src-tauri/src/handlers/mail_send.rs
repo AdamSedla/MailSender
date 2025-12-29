@@ -107,20 +107,22 @@ pub fn add_person(id: String, app: tauri::AppHandle) -> String {
     let id: usize = id.parse().unwrap_or_else(|_| error_id_parse(app.clone(), id));
     let app_state = app.state::<AppState>();
 
-    let person = app_state.mail_list.lock().load_person(id).unwrap();
+    if let Some(person) = app_state.mail_list.lock().load_person(id){
+        app_state.mail.lock().add_person(person.clone(), app.clone());
 
-    app_state.mail.lock().add_person(person.clone(), app.clone());
+        let markup: Markup = html! {
+            button.middle-button.clicked
+                hx-trigger="click"
+                hx-post="command:remove_person"
+                hx-swap="outerHTML"
+                hx-vals={(format!(r#""id": {id}"#))}
+            {(person.name)}
+        };
 
-    let markup: Markup = html! {
-        button.middle-button.clicked
-            hx-trigger="click"
-            hx-post="command:remove_person"
-            hx-swap="outerHTML"
-            hx-vals={(format!(r#""id": {id}"#))}
-        {(person.name)}
-    };
+        return markup.into_string()
+    }
 
-    markup.into_string()
+    error_load_person(app, id)
 }
 
 #[tauri::command]
@@ -128,20 +130,22 @@ pub fn remove_person(id: String, app: tauri::AppHandle) -> String {
     let id: usize = id.parse().unwrap_or_else(|_| error_id_parse(app.clone(), id));
     let app_state = app.state::<AppState>();
 
-    let person = app_state.mail_list.lock().load_person(id).unwrap();
+    if let Some(person) = app_state.mail_list.lock().load_person(id){
+        app_state.mail.lock().remove_person(person.clone(), app.clone());
 
-    app_state.mail.lock().remove_person(person.clone(), app.clone());
+        let markup: Markup = html! {
+            button.middle-button
+                hx-trigger="click"
+                hx-post="command:add_person"
+                hx-swap="outerHTML"
+                hx-vals={(format!(r#""id": {id}"#))}
+            {(person.name)}
+        };
 
-    let markup: Markup = html! {
-        button.middle-button
-            hx-trigger="click"
-            hx-post="command:add_person"
-            hx-swap="outerHTML"
-            hx-vals={(format!(r#""id": {id}"#))}
-        {(person.name)}
-    };
+        return markup.into_string()
+    }
 
-    markup.into_string()
+    error_load_person(app, id)
 }
 
 

@@ -19,7 +19,7 @@ impl OtherMailList {
     pub fn render_input_fields(&self) -> Markup {
         let markup: Markup = html! {
             @for (index, person) in (self.list.iter().enumerate()) {
-                @if person.is_some(){
+                @if let Some(person) = person{
                        div.other-mail-button-row{
                             input.other-mail-input-field
                             type="text"
@@ -28,7 +28,7 @@ impl OtherMailList {
                             hx-trigger="change"
                             hx-vals={(format!(r#""index": {index}"#))}
                             placeholder="Zadejte prosím E-mail"
-                            value=(person.as_ref().unwrap().mail)
+                            value=(person.mail)
                             {}
                             button.remove-button
                             hx-post="command:remove_other_row"
@@ -82,8 +82,8 @@ impl OtherMailList {
         let mut final_vec: Vec<Person> = vec![];
 
         self.list.iter().for_each(|person| {
-            if person.is_some() {
-                final_vec.push(person.clone().unwrap());
+            if let Some(person) = person {
+                final_vec.push(person.clone());
             }
         });
 
@@ -91,7 +91,7 @@ impl OtherMailList {
     }
 
     pub fn is_empty(&self) -> bool {
-        self.list.is_empty()
+        self.list.iter().all(|person| person.is_none())
     }
 
     pub fn is_valid(&self) -> bool {
