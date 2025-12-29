@@ -33,14 +33,23 @@ pub enum MailSenderError {
     #[error("couldn't send email: {0}")]
     CouldntSendEmail(#[from] lettre::error::Error),
 
-    #[error("InvalidMessage")]
+    #[error("Error opening SMTP: {0}")]
+    ErrorOpeningSMTP(#[from] lettre::transport::smtp::Error),
+
+    #[error("Couldn't send built email")]
     InvalidMessage,
 
     #[error("Couldn't open a remote connection to gmail")]
     NoRemoteConnection,
 
-    #[error("ErrorSendingFeedbackMail")]
-    ErrorSendingFeedbackMail
+    #[error("Couldn't send feedback mail")]
+    ErrorSendingFeedbackMail,
+
+    #[error("Invalid attachment content")]
+    AttachmentContentError,
+
+    #[error("Couldn't parse sender mail")]
+    InvalidSenderMail
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -100,7 +109,7 @@ impl MailSender {
         &mut self,
         other_mail_list: Vec<mail_list_utils::Person>,
         config: Config, app: tauri::AppHandle
-    ) -> Result<()> {
+    ) -> Result<(), MailSenderError> {
         let mut mail = MailSender{people: self.people.clone(), files: self.files.clone()};
 
         other_mail_list.iter().for_each(|person| {
@@ -119,7 +128,7 @@ impl MailSender {
         //sender
         message_builder = message_builder.from(Mailbox::new(
             Some(config.sender_name().to_string()),
-            config.sender_mail().parse()?,
+            config.sender_mail().parse().map_err(|_|MailSenderError::InvalidSenderMail)?,
         ));
 
         //recipient
@@ -151,7 +160,7 @@ impl MailSender {
                     .clone()
                     .singlepart(Attachment::new(file_name).body(
                         Body::new(file),
-                        ContentType::parse(mime_type.first().unwrap().essence_str())?,
+                        ContentType::parse(mime_type.first().unwrap().essence_str()).map_err(|_| MailSenderError::AttachmentContentError)?,
                     ));
         }
 
@@ -167,7 +176,7 @@ impl MailSender {
             .build();
 
         //send the email
-        mailer.send(&message.map_err(|_| MailSenderError::InvalidMessage)?)?;
+        mailer.send(&message.map_err(|e| MailSenderError::CouldntSendEmail(e))?).map_err(|e| MailSenderError::ErrorOpeningSMTP(e))?;
 
         Ok(())
     }
@@ -211,7 +220,7 @@ impl MailSender {
             .build();
 
         //send the email
-        mailer.send(&message.map_err(|_| MailSenderError::InvalidMessage)?)?;
+        mailer.send(&message.map_err(|e| MailSenderError::CouldntSendEmail(e))?).map_err(|e| MailSenderError::ErrorOpeningSMTP(e))?;
 
         Ok(())
     }

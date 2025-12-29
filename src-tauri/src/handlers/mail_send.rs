@@ -3,7 +3,7 @@ use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
 
 use crate::AppState;
-use crate::backend::error_handling::{error_id_parse, error_load_person};
+use crate::backend::error_handling::{error_id_parse, error_load_person, error_sending_mail};
 //---------------------------
 
 #[tauri::command]
@@ -20,7 +20,6 @@ pub fn send(app: tauri::AppHandle) -> String {
     let valid_request = file_valid && (basic_list_valid || other_mail_list_valid);
 
     if !valid_request {
-        println!("not send");
         return html!{
             input.truck
             type="image"
@@ -32,7 +31,21 @@ pub fn send(app: tauri::AppHandle) -> String {
         }.into_string();
     }
 
-    mail.send(other_mail_list.export_other_mail_list(), config, app.clone()).unwrap();
+    let mail_result = mail.send(other_mail_list.export_other_mail_list(), config, app.clone());
+
+    if let Err(error) = mail_result{
+        error_sending_mail(app.clone(), error);
+
+        return html!{
+            input.truck
+            type="image"
+            src="src/assets/send_truck.svg"
+            alt="truck-icon"
+            hx-trigger="click"
+            hx-post="command:send"
+            {}
+        }.into_string();
+    }
 
     html!{
         input.truck.drive-animation
