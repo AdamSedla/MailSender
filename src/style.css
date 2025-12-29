@@ -154,7 +154,6 @@ button:hover {
   position: relative;
   animation-name: truck_move_animation;
   animation-duration: 4s;
-
 }
 
 @keyframes truck_move_animation {

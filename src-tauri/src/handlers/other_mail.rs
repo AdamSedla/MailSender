@@ -10,7 +10,7 @@ pub fn open_other(app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
 
     let markup: Markup = html! {
-        div #overlay-other .overlay
+        div #overlay-other .overlay .most-top
         {
             div.overlay-window
             {
