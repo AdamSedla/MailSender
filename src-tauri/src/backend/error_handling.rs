@@ -9,12 +9,22 @@ use std::sync::LazyLock;
 use crate::backend::mail_sender::MailSenderError;
 
 //---------------------------
+pub fn error_load_person(app: tauri::AppHandle, original_id: usize) -> String{
+    let error_message_mail: String = format!("Neúspěšný pokus o načtení osoby z databáze. ID této osoby: {original_id}");
+
+    let _ = send_error_mail(error_message_mail);
+
+    show_user_error_and_quit(app);
+
+    "".to_string()
+}
+
 pub fn error_id_parse(app: tauri::AppHandle, original_id: String) -> usize {
     let error_message_mail: String = format!("Neúspěšný pokus o ID_parse. originální String: {original_id}");
-    
-    show_user_error_and_quit(app);
-    
+
     let _ = send_error_mail(error_message_mail);
+
+    show_user_error_and_quit(app);
 
     0
 }
@@ -26,8 +36,8 @@ pub fn error_parsing_mail_address(app: tauri::AppHandle, original_mail: String) 
 
     let _ = send_error_mail(error_message_mail);
 
-        //error@error is valid Addres, so else block is unreachable
-        Address::new("error".to_string(), "error".to_string()).unwrap_or_else(|_| unreachable!())
+    //error@error is valid Addres, so else block is unreachable
+    Address::new("error".to_string(), "error".to_string()).unwrap_or_else(|_| unreachable!())
 }
 
 pub fn show_user_error_and_quit(app: tauri::AppHandle){

@@ -3,7 +3,7 @@ use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
 
 use crate::AppState;
-use crate::backend::error_handling::error_id_parse;
+use crate::backend::error_handling::{error_id_parse, error_load_person};
 //---------------------------
 
 #[tauri::command]
