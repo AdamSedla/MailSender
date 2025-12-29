@@ -101,14 +101,16 @@ impl MailSender {
         other_mail_list: Vec<mail_list_utils::Person>,
         config: Config, app: tauri::AppHandle
     ) -> Result<()> {
+        let mut mail = MailSender{people: self.people.clone(), files: self.files.clone()};
+
         other_mail_list.iter().for_each(|person| {
-            self.add_person(person.clone(), app.clone());
+            mail.add_person(person.clone(), app.clone());
         });
 
-        if self.people.is_empty() {
+        if mail.people.is_empty() {
             return Err(MailSenderError::NoRecipients.into());
         }
-        if self.files.is_none() {
+        if mail.files.is_none() {
             return Err(MailSenderError::NoFile.into());
         }
 
@@ -121,7 +123,7 @@ impl MailSender {
         ));
 
         //recipient
-        message_builder = self
+        message_builder = mail
             .people
             .iter()
             .fold(message_builder, |message_builder, recipient| {
@@ -137,7 +139,7 @@ impl MailSender {
         //attachments
         let mut attachment_multipart = MultiPart::mixed().build();
 
-        for file_path in self.files.as_ref().unwrap() {
+        for file_path in mail.files.as_ref().unwrap() {
             let file = fs::read(file_path).map_err(|_| MailSenderError::InvalidFilePath)?;
 
             let mime_type = mime_guess::from_path(file_path);

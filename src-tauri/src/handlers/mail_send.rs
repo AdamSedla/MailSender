@@ -14,11 +14,13 @@ pub fn send(app: tauri::AppHandle) -> String {
     let config = app_state.config.lock().clone();
 
     let file_valid = mail.file_is_valid();
-    let mail_list_not_empty = mail.person_list_is_valid() && other_mail_list.is_empty();
-    let other_mail_list_valid = other_mail_list.is_valid();
+    let basic_list_valid = mail.person_list_is_valid();
+    let other_mail_list_valid = other_mail_list.is_valid() && !(other_mail_list.is_empty());
 
-    //valid check
-    if !(file_valid && ((mail_list_not_empty) || other_mail_list_valid)) {
+    let valid_request = file_valid && (basic_list_valid || other_mail_list_valid);
+
+    if !valid_request {
+        println!("not send");
         return html!{
             input.truck
             type="image"
