@@ -16,23 +16,19 @@ pub struct MailList {
 
 impl MailList {
     pub fn save_list(&mut self) -> Result<(), Vec<String>>{
-        self.list.iter_mut().for_each(|person| {
-            if person.as_ref().is_some_and(|person_unwrap| {
-                person_unwrap.name.is_empty()
-            }) {
-                *person = None;
-            }
-        });
+        //will change every empty names into None
+        self.list.iter_mut().filter(|person| person.as_ref().is_some_and(|person| person.name.is_empty())).for_each(|person| *person = None);
 
-        let mut wrong_mail_list: Vec<String> = vec![];
-
-        for person in self.list.iter(){
-            if person.as_ref().is_some_and(|person|{
-                person.mail.parse::<Address>().is_err()
-            }){
-                wrong_mail_list.push(person.as_ref().unwrap().name.clone());
-            }
-        }
+        //will create list of invalid mails
+        let wrong_mail_list: Vec<String> = self.list.iter().filter_map(|person| {
+            person.as_ref().and_then(|p| {
+                if p.mail.parse::<Address>().is_err() {
+                    Some(p.name.clone())
+                } else {
+                    None
+                }
+            })
+        }).collect();
 
         if !wrong_mail_list.is_empty(){
             return Err(wrong_mail_list)
