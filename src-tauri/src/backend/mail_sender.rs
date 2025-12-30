@@ -6,6 +6,7 @@ use lettre::message::{header::ContentType, Attachment, Body, MultiPart};
 use lettre::{Address, Message, SmtpTransport, Transport};
 
 use std::fs;
+use std::ffi::OsStr;
 use std::path::PathBuf;
 
 use tauri_plugin_dialog::FilePath;
@@ -148,20 +149,28 @@ impl MailSender {
         //attachments
         let mut attachment_multipart = MultiPart::mixed().build();
 
-        for file_path in mail.files.as_ref().unwrap() {
-            let file = fs::read(file_path).map_err(|_| MailSenderError::InvalidFilePath)?;
+        if let Some(mail_files) = mail.files{
+            for file_path in mail_files {
+                let file = fs::read(&file_path).map_err(|_| MailSenderError::InvalidFilePath)?;
 
-            let mime_type = mime_guess::from_path(file_path);
+                if let Some(mime_type) = mime_guess::from_path(&file_path).first(){
+                    let file_name = file_path.file_name().unwrap_or(OsStr::new("soubor")).to_str().unwrap_or("soubor").to_string();
 
-            let file_name = file_path.file_name().unwrap().to_str().unwrap().to_string();
-
-            attachment_multipart =
-                attachment_multipart
+                    attachment_multipart =
+                    attachment_multipart
                     .clone()
                     .singlepart(Attachment::new(file_name).body(
                         Body::new(file),
-                        ContentType::parse(mime_type.first().unwrap().essence_str()).map_err(|_| MailSenderError::AttachmentContentError)?,
+                        ContentType::parse(mime_type.essence_str()).map_err(|_| MailSenderError::AttachmentContentError)?,
                     ));
+                }
+                else {
+                    return Err(MailSenderError::InvalidFilePath);
+                }
+
+            }
+        } else {
+            return Err(MailSenderError::InvalidFilePath);
         }
 
         let message = message_builder.multipart(attachment_multipart);
