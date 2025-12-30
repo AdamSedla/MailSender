@@ -3,7 +3,7 @@ use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
 
 use crate::AppState;
-use crate::backend::error_handling::{error_id_parse, error_load_person, error_sending_mail};
+use crate::backend::error_handling::{error_id_parse, error_load_person, error_pick_file, error_sending_mail};
 //---------------------------
 
 #[tauri::command]
@@ -168,7 +168,9 @@ pub fn pick_file(app: tauri::AppHandle) -> String {
         let app_state = app.state::<AppState>();
 
         if let Some(path) = file_path {
-            app_state.mail.lock().add_file(path).unwrap();
+            if app_state.mail.lock().add_file(path).is_err(){
+                error_pick_file(app);
+            }
         }
     });
 

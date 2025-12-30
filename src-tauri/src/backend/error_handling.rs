@@ -9,6 +9,14 @@ use std::sync::LazyLock;
 use crate::backend::mail_sender::MailSenderError;
 
 //---------------------------
+pub fn error_pick_file(app: tauri::AppHandle){
+    let error_message: String = format!("Došlo k chybě při výběru souboru.");
+
+    let _ = send_error_mail(error_message);
+
+    show_file_pick_user_error_and_continue(app);
+}
+
 pub fn error_sending_mail(app: tauri::AppHandle, error: MailSenderError) {
     let error_message: String = format!("Došlo k chybě při odesílání mailu. \n\n {error}");
 
@@ -54,6 +62,21 @@ pub fn error_parsing_mail_address(app: tauri::AppHandle, original_mail: String) 
 
     //error@error is valid Addres, so else block is unreachable
     Address::new("error".to_string(), "error".to_string()).unwrap_or_else(|_| unreachable!())
+}
+
+pub fn show_file_pick_user_error_and_continue(app: tauri::AppHandle){
+    static ERROR_MESSAGE_TITLE: &str = "Došlo k chybě při výběru souboru";
+    static ERROR_MESSAGE_TEXT: &str = "Nebylo možné vybrat soubor.\n\nAutor aplikace byl informován.\n\nInformujte prosím vedoucího.";
+
+    app.dialog()
+    .message(ERROR_MESSAGE_TEXT.to_string())
+    .kind(MessageDialogKind::Info)
+    .title(ERROR_MESSAGE_TITLE.to_string())
+    .buttons(MessageDialogButtons::OkCustom("OK".to_string()))
+    .show(|result| match result {
+        true => (),
+        false => (),
+    });
 }
 
 pub fn show_connection_user_error_and_continue(app: tauri::AppHandle){
