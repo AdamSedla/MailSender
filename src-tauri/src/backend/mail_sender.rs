@@ -89,7 +89,7 @@ impl MailSender {
     }
 
     pub fn add_file(&mut self, vec_path: Vec<FilePath>) -> Result<(), MailSenderError> {
-        self.files = Some(vec![]);
+        let mut file_paths: Vec<PathBuf> = vec![];
 
         for file in vec_path {
             let path = file
@@ -100,8 +100,10 @@ impl MailSender {
                 return Err(MailSenderError::InvalidFilePath);
             }
 
-            self.files.as_mut().unwrap().push(path);
+            file_paths.push(path);
         }
+
+        self.files = Some(file_paths);
 
         Ok(())
     }
