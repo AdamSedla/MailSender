@@ -9,18 +9,18 @@ use tauri::Manager;
 
 //import backend for AppState
 
-mod backend{
+mod backend {
     pub mod config;
+    pub mod error_handling;
+    pub mod hard_coded_credentials;
     pub mod mail_list_utils;
     pub mod mail_sender;
     pub mod other_mail_utils;
-    pub mod error_handling;
-    pub mod hard_coded_credentials;
 }
 
 use crate::backend::config::Config;
-use crate::backend::mail_sender::MailSender;
 use crate::backend::mail_list_utils::MailList;
+use crate::backend::mail_sender::MailSender;
 use crate::backend::other_mail_utils::OtherMailList;
 
 struct AppState {
@@ -35,7 +35,7 @@ struct AppState {
 
 //import handlers from other files
 
-mod handlers{
+mod handlers {
     pub mod app_settings;
     pub mod config_edit;
     pub mod feedback;
@@ -44,7 +44,7 @@ mod handlers{
     pub mod other_mail;
 }
 
-/* 
+/*
 app_settings:
     - open_settings_password
     - check_password
@@ -71,7 +71,7 @@ use crate::handlers::app_settings::*;
 
 //---------------------------
 
-/* 
+/*
 config edit
     - open_settings_config
     - save_and_close_settings_config
@@ -90,7 +90,7 @@ use crate::handlers::config_edit::*;
 
 //---------------------------
 
-/* 
+/*
 feedback
     - open_feedback
     - close_feedback
@@ -101,7 +101,7 @@ use crate::handlers::feedback::*;
 
 //---------------------------
 
-/* 
+/*
 mail_send
     - send
     - load_mechanics
@@ -114,7 +114,7 @@ use crate::handlers::mail_send::*;
 
 //---------------------------
 
-/* 
+/*
 manuals:
     - open_manual
     - close_manual
@@ -125,7 +125,7 @@ use crate::handlers::manuals::*;
 
 //---------------------------
 
-/* 
+/*
 other_mail
     - open_other
     - close_other
@@ -136,7 +136,6 @@ other_mail
 use crate::handlers::other_mail::*;
 
 //---------------------------
-
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -152,7 +151,8 @@ pub fn run() {
             Ok(())
         })
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![ //seřadit
+        .invoke_handler(tauri::generate_handler![
+            //seřadit
             pick_file,
             send,
             load_mechanics,

@@ -1,8 +1,8 @@
 use maud::{html, Markup};
 use tauri::Manager;
 
-use crate::AppState;
 use crate::backend::config::Config;
+use crate::AppState;
 
 //---------------------------
 
@@ -183,10 +183,7 @@ pub fn save_feedback_mail(app: tauri::AppHandle, text: String) {
 pub fn save_feedback_recepient(app: tauri::AppHandle, text: String) {
     let app_state = app.state::<AppState>();
 
-    app_state
-        .config
-        .lock()
-        .save_feedback_recepient(text);
+    app_state.config.lock().save_feedback_recepient(text);
 }
 
 #[tauri::command]
@@ -200,10 +197,7 @@ pub fn save_feedback_subject(app: tauri::AppHandle, text: String) {
 pub fn save_settings_password(app: tauri::AppHandle, text: String) {
     let app_state = app.state::<AppState>();
 
-    app_state
-        .config
-        .lock()
-        .save_settings_password(text);
+    app_state.config.lock().save_settings_password(text);
 }
 
 #[tauri::command]

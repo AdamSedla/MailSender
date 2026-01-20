@@ -1,10 +1,10 @@
 use maud::{html, Markup};
 use tauri::Manager;
 
-use crate::AppState;
-use crate::backend::mail_list_utils;
-use crate::MailList;
 use crate::backend::error_handling::error_id_parse;
+use crate::backend::mail_list_utils;
+use crate::AppState;
+use crate::MailList;
 
 //---------------------------
 
@@ -39,13 +39,12 @@ pub fn open_settings_password() -> String {
 }
 
 #[tauri::command]
-pub fn check_password(app: tauri::AppHandle, text: String) -> String{
+pub fn check_password(app: tauri::AppHandle, text: String) -> String {
     let app_state = app.state::<AppState>();
 
     if app_state.config.lock().settings_password_check(&text) {
         correct_password_handler()
-    }
-    else {
+    } else {
         invalid_password_warning()
     }
 }
@@ -83,7 +82,7 @@ pub fn invalid_password_warning() -> String {
 
 #[tauri::command]
 pub fn correct_password_handler() -> String {
-    let markup: Markup = html!{
+    let markup: Markup = html! {
         div
         hx-trigger="load delay:1ms"
         hx-swap="outerHTML"
@@ -185,8 +184,8 @@ pub fn open_settings(app: tauri::AppHandle) -> String {
 }
 
 #[tauri::command]
-pub fn open_discard_overlay()->String{
-    html!{
+pub fn open_discard_overlay() -> String {
+    html! {
         div .overlay #discard-overlay{
             div .overlay-window{
                 button.close-button
@@ -210,14 +209,16 @@ pub fn open_discard_overlay()->String{
                 {("odejít bez uložení")}
             }
         }
-    }.into_string()
+    }
+    .into_string()
 }
 
 #[tauri::command]
-pub fn close_discard_overlay()->String{
-    html!{
+pub fn close_discard_overlay() -> String {
+    html! {
         div #discard-overlay-placeholder {}
-    }.into_string()
+    }
+    .into_string()
 }
 
 #[tauri::command]
@@ -234,25 +235,24 @@ pub fn save_and_close_settings(app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
 
     let mail_list_save = app_state.mail_list.lock().save_list();
- 
+
     if let Err(invalid_mails) = mail_list_save {
         wrong_mail_warning(invalid_mails)
-    }
-
-    else {
-        html!{
+    } else {
+        html! {
             div
             hx-trigger="load delay:1ms"
             hw-swap="outerHTML"
             hx-post="command:close_settings"
             hx-target="#app-body"
             {}
-        }.into_string()
+        }
+        .into_string()
     }
 }
 
 pub fn wrong_mail_warning(name_list: Vec<String>) -> String {
-    html!{
+    html! {
         div .overlay #wrong-mail-warning-overlay{
             div .overlay-window{
                 button.close-button
@@ -271,14 +271,16 @@ pub fn wrong_mail_warning(name_list: Vec<String>) -> String {
 
             }
         }
-    }.into_string()
- }
+    }
+    .into_string()
+}
 
 #[tauri::command]
-pub fn close_wrong_mail_warning() -> String{
+pub fn close_wrong_mail_warning() -> String {
     html! {
         div #valid-mail-placeholder{}
-    }.into_string()
+    }
+    .into_string()
 }
 
 #[tauri::command]
@@ -418,7 +420,9 @@ pub fn load_settings_technics(app: tauri::AppHandle) -> String {
 
 #[tauri::command]
 pub fn edit_person(id: String, app: tauri::AppHandle) -> String {
-    let id: usize = id.parse().unwrap_or_else(|_| error_id_parse(app.clone(), id));
+    let id: usize = id
+        .parse()
+        .unwrap_or_else(|_| error_id_parse(app.clone(), id));
 
     let app_state = app.state::<AppState>();
 
@@ -497,7 +501,9 @@ pub fn edit_person(id: String, app: tauri::AppHandle) -> String {
 
 #[tauri::command]
 pub fn mark_person(id: String, app: tauri::AppHandle) -> String {
-    let id: usize = id.parse().unwrap_or_else(|_| error_id_parse(app.clone(), id));
+    let id: usize = id
+        .parse()
+        .unwrap_or_else(|_| error_id_parse(app.clone(), id));
 
     let app_state = app.state::<AppState>();
 
@@ -522,7 +528,9 @@ pub fn mark_person(id: String, app: tauri::AppHandle) -> String {
 
 #[tauri::command]
 pub fn unmark_person(id: String, app: tauri::AppHandle) -> String {
-    let id: usize = id.parse().unwrap_or_else(|_| error_id_parse(app.clone(), id));
+    let id: usize = id
+        .parse()
+        .unwrap_or_else(|_| error_id_parse(app.clone(), id));
 
     let app_state = app.state::<AppState>();
 
@@ -552,24 +560,22 @@ pub fn unmark_person(id: String, app: tauri::AppHandle) -> String {
 
 #[tauri::command]
 pub fn edit_person_name(app: tauri::AppHandle, id: String, text: String) {
-    let id: usize = id.parse().unwrap_or_else(|_| error_id_parse(app.clone(), id));
+    let id: usize = id
+        .parse()
+        .unwrap_or_else(|_| error_id_parse(app.clone(), id));
 
     let app_state = app.state::<AppState>();
 
-    app_state
-        .mail_list
-        .lock()
-        .save_person_name(id, text);
+    app_state.mail_list.lock().save_person_name(id, text);
 }
 
 #[tauri::command]
 pub fn edit_person_mail(app: tauri::AppHandle, id: String, text: String) {
-    let id: usize = id.parse().unwrap_or_else(|_| error_id_parse(app.clone(), id));
+    let id: usize = id
+        .parse()
+        .unwrap_or_else(|_| error_id_parse(app.clone(), id));
 
     let app_state = app.state::<AppState>();
 
-    app_state
-        .mail_list
-        .lock()
-        .save_person_mail(id, text);
+    app_state.mail_list.lock().save_person_mail(id, text);
 }

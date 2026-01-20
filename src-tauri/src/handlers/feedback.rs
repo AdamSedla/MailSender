@@ -1,8 +1,8 @@
 use maud::{html, Markup};
 use tauri::Manager;
 
-use crate::AppState;
 use crate::backend::mail_sender;
+use crate::AppState;
 //---------------------------
 
 #[tauri::command]

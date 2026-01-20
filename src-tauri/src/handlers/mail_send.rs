@@ -2,8 +2,10 @@ use maud::{html, Markup};
 use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
 
+use crate::backend::error_handling::{
+    error_id_parse, error_load_person, error_pick_file, error_sending_mail,
+};
 use crate::AppState;
-use crate::backend::error_handling::{error_id_parse, error_load_person, error_pick_file, error_sending_mail};
 //---------------------------
 
 #[tauri::command]
@@ -20,7 +22,7 @@ pub fn send(app: tauri::AppHandle) -> String {
     let valid_request = file_valid && (basic_list_valid || other_mail_list_valid);
 
     if !valid_request {
-        return html!{
+        return html! {
             input.truck
             type="image"
             src="src/assets/send_truck.svg"
@@ -28,15 +30,20 @@ pub fn send(app: tauri::AppHandle) -> String {
             hx-trigger="click"
             hx-post="command:send"
             {}
-        }.into_string();
+        }
+        .into_string();
     }
 
-    let mail_result = mail.send(other_mail_list.export_other_mail_list(), config, app.clone());
+    let mail_result = mail.send(
+        other_mail_list.export_other_mail_list(),
+        config,
+        app.clone(),
+    );
 
-    if let Err(error) = mail_result{
+    if let Err(error) = mail_result {
         error_sending_mail(app.clone(), error);
 
-        return html!{
+        return html! {
             input.truck
             type="image"
             src="src/assets/send_truck.svg"
@@ -44,10 +51,11 @@ pub fn send(app: tauri::AppHandle) -> String {
             hx-trigger="click"
             hx-post="command:send"
             {}
-        }.into_string();
+        }
+        .into_string();
     }
 
-    html!{
+    html! {
         input.truck.drive-animation
         type="image"
         src="src/assets/send_truck.svg"
@@ -56,7 +64,8 @@ pub fn send(app: tauri::AppHandle) -> String {
         hx-post="command:send"
         hx-swap="outerHTML"
         {}
-    }.into_string()
+    }
+    .into_string()
 }
 
 #[tauri::command]
@@ -117,11 +126,16 @@ pub fn load_technics(app: tauri::AppHandle) -> String {
 
 #[tauri::command]
 pub fn add_person(id: String, app: tauri::AppHandle) -> String {
-    let id: usize = id.parse().unwrap_or_else(|_| error_id_parse(app.clone(), id));
+    let id: usize = id
+        .parse()
+        .unwrap_or_else(|_| error_id_parse(app.clone(), id));
     let app_state = app.state::<AppState>();
 
-    if let Some(person) = app_state.mail_list.lock().load_person(id){
-        app_state.mail.lock().add_person(person.clone(), app.clone());
+    if let Some(person) = app_state.mail_list.lock().load_person(id) {
+        app_state
+            .mail
+            .lock()
+            .add_person(person.clone(), app.clone());
 
         let markup: Markup = html! {
             button.middle-button.clicked
@@ -132,7 +146,7 @@ pub fn add_person(id: String, app: tauri::AppHandle) -> String {
             {(person.name)}
         };
 
-        return markup.into_string()
+        return markup.into_string();
     }
 
     error_load_person(app, id)
@@ -140,11 +154,16 @@ pub fn add_person(id: String, app: tauri::AppHandle) -> String {
 
 #[tauri::command]
 pub fn remove_person(id: String, app: tauri::AppHandle) -> String {
-    let id: usize = id.parse().unwrap_or_else(|_| error_id_parse(app.clone(), id));
+    let id: usize = id
+        .parse()
+        .unwrap_or_else(|_| error_id_parse(app.clone(), id));
     let app_state = app.state::<AppState>();
 
-    if let Some(person) = app_state.mail_list.lock().load_person(id){
-        app_state.mail.lock().remove_person(person.clone(), app.clone());
+    if let Some(person) = app_state.mail_list.lock().load_person(id) {
+        app_state
+            .mail
+            .lock()
+            .remove_person(person.clone(), app.clone());
 
         let markup: Markup = html! {
             button.middle-button
@@ -155,12 +174,11 @@ pub fn remove_person(id: String, app: tauri::AppHandle) -> String {
             {(person.name)}
         };
 
-        return markup.into_string()
+        return markup.into_string();
     }
 
     error_load_person(app, id)
 }
-
 
 #[tauri::command]
 pub fn pick_file(app: tauri::AppHandle) -> String {
@@ -168,7 +186,7 @@ pub fn pick_file(app: tauri::AppHandle) -> String {
         let app_state = app.state::<AppState>();
 
         if let Some(path) = file_path {
-            if app_state.mail.lock().add_file(path).is_err(){
+            if app_state.mail.lock().add_file(path).is_err() {
                 error_pick_file(app);
             }
         }
@@ -184,4 +202,3 @@ pub fn pick_file(app: tauri::AppHandle) -> String {
 
     markup.into_string()
 }
-

@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use lettre::Address;
+use serde::{Deserialize, Serialize};
 
 //---------------------------
 
@@ -15,23 +15,30 @@ pub struct MailList {
 }
 
 impl MailList {
-    pub fn save_list(&mut self) -> Result<(), Vec<String>>{
+    pub fn save_list(&mut self) -> Result<(), Vec<String>> {
         //will change every empty names into None
-        self.list.iter_mut().filter(|person| person.as_ref().is_some_and(|person| person.name.is_empty())).for_each(|person| *person = None);
+        self.list
+            .iter_mut()
+            .filter(|person| person.as_ref().is_some_and(|person| person.name.is_empty()))
+            .for_each(|person| *person = None);
 
         //will create list of invalid mails
-        let wrong_mail_list: Vec<String> = self.list.iter().filter_map(|person| {
-            person.as_ref().and_then(|p| {
-                if p.mail.parse::<Address>().is_err() {
-                    Some(p.name.clone())
-                } else {
-                    None
-                }
+        let wrong_mail_list: Vec<String> = self
+            .list
+            .iter()
+            .filter_map(|person| {
+                person.as_ref().and_then(|p| {
+                    if p.mail.parse::<Address>().is_err() {
+                        Some(p.name.clone())
+                    } else {
+                        None
+                    }
+                })
             })
-        }).collect();
+            .collect();
 
-        if !wrong_mail_list.is_empty(){
-            return Err(wrong_mail_list)
+        if !wrong_mail_list.is_empty() {
+            return Err(wrong_mail_list);
         }
 
         let ron_string =

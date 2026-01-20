@@ -1,8 +1,8 @@
 use maud::{html, Markup};
 use tauri::Manager;
 
-use crate::AppState;
 use crate::backend::error_handling::error_id_parse;
+use crate::AppState;
 //---------------------------
 
 #[tauri::command]
@@ -75,28 +75,23 @@ pub fn add_other_mail_row(app: tauri::AppHandle) -> String {
 pub fn edit_mail(app: tauri::AppHandle, index: String, text: String) {
     let app_state = app.state::<AppState>();
 
-    let index: usize = index.parse().unwrap_or_else(|_| error_id_parse(app.clone(), index));
+    let index: usize = index
+        .parse()
+        .unwrap_or_else(|_| error_id_parse(app.clone(), index));
 
-    app_state
-        .other_mail_list
-        .lock()
-        .edit_person(&text, index);
+    app_state.other_mail_list.lock().edit_person(&text, index);
 }
 
 #[tauri::command]
 pub fn remove_other_row(app: tauri::AppHandle, index: String) -> String {
     let app_state: tauri::State<'_, AppState> = app.state::<AppState>();
-    let index: usize = index.parse().unwrap_or_else(|_| error_id_parse(app.clone(), index));
+    let index: usize = index
+        .parse()
+        .unwrap_or_else(|_| error_id_parse(app.clone(), index));
 
-    app_state
-        .other_mail_list
-        .lock()
-        .remove_person(index);
+    app_state.other_mail_list.lock().remove_person(index);
 
-    let markup: Markup = app_state
-        .other_mail_list
-        .lock()
-        .render_input_fields();
+    let markup: Markup = app_state.other_mail_list.lock().render_input_fields();
 
     markup.into_string()
 }
@@ -109,10 +104,7 @@ pub fn close_other(app: tauri::AppHandle) -> String {
 
     let app_state = app.state::<AppState>();
 
-    app_state
-        .other_mail_list
-        .lock()
-        .remove_empty_persons();
+    app_state.other_mail_list.lock().remove_empty_persons();
 
     markup.into_string()
 }

@@ -1,12 +1,11 @@
 use anyhow::Result;
 
-
 use lettre::message::Mailbox;
 use lettre::message::{header::ContentType, Attachment, Body, MultiPart};
 use lettre::{Address, Message, SmtpTransport, Transport};
 
-use std::fs;
 use std::ffi::OsStr;
+use std::fs;
 use std::path::PathBuf;
 
 use tauri_plugin_dialog::FilePath;
@@ -50,7 +49,7 @@ pub enum MailSenderError {
     AttachmentContentError,
 
     #[error("Couldn't parse sender mail")]
-    InvalidSenderMail
+    InvalidSenderMail,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -69,7 +68,10 @@ impl MailSender {
     pub fn add_person(&mut self, person: Person, app: tauri::AppHandle) -> &mut Self {
         let person_parsed = Recipient {
             name: person.name,
-            mail: person.mail.parse().unwrap_or_else(|_| error_parsing_mail_address(app, person.mail)),
+            mail: person
+                .mail
+                .parse()
+                .unwrap_or_else(|_| error_parsing_mail_address(app, person.mail)),
         };
 
         self.people.push(person_parsed);
@@ -80,7 +82,10 @@ impl MailSender {
     pub fn remove_person(&mut self, person: Person, app: tauri::AppHandle) -> &mut Self {
         let person_parsed = Recipient {
             name: person.name,
-            mail: person.mail.parse().unwrap_or_else(|_| error_parsing_mail_address(app, person.mail)),
+            mail: person
+                .mail
+                .parse()
+                .unwrap_or_else(|_| error_parsing_mail_address(app, person.mail)),
         };
 
         self.people.retain(|x| *x != person_parsed);
@@ -111,9 +116,13 @@ impl MailSender {
     pub fn send(
         &mut self,
         other_mail_list: Vec<mail_list_utils::Person>,
-        config: Config, app: tauri::AppHandle
+        config: Config,
+        app: tauri::AppHandle,
     ) -> Result<(), MailSenderError> {
-        let mut mail = MailSender{people: self.people.clone(), files: self.files.clone()};
+        let mut mail = MailSender {
+            people: self.people.clone(),
+            files: self.files.clone(),
+        };
 
         other_mail_list.iter().for_each(|person| {
             mail.add_person(person.clone(), app.clone());
@@ -131,7 +140,10 @@ impl MailSender {
         //sender
         message_builder = message_builder.from(Mailbox::new(
             Some(config.sender_name().to_string()),
-            config.sender_mail().parse().map_err(|_|MailSenderError::InvalidSenderMail)?,
+            config
+                .sender_mail()
+                .parse()
+                .map_err(|_| MailSenderError::InvalidSenderMail)?,
         ));
 
         //recipient
@@ -151,25 +163,28 @@ impl MailSender {
         //attachments
         let mut attachment_multipart = MultiPart::mixed().build();
 
-        if let Some(mail_files) = mail.files{
+        if let Some(mail_files) = mail.files {
             for file_path in mail_files {
                 let file = fs::read(&file_path).map_err(|_| MailSenderError::InvalidFilePath)?;
 
-                if let Some(mime_type) = mime_guess::from_path(&file_path).first(){
-                    let file_name = file_path.file_name().unwrap_or(OsStr::new("soubor")).to_str().unwrap_or("soubor").to_string();
+                if let Some(mime_type) = mime_guess::from_path(&file_path).first() {
+                    let file_name = file_path
+                        .file_name()
+                        .unwrap_or(OsStr::new("soubor"))
+                        .to_str()
+                        .unwrap_or("soubor")
+                        .to_string();
 
-                    attachment_multipart =
-                    attachment_multipart
-                    .clone()
-                    .singlepart(Attachment::new(file_name).body(
-                        Body::new(file),
-                        ContentType::parse(mime_type.essence_str()).map_err(|_| MailSenderError::AttachmentContentError)?,
-                    ));
-                }
-                else {
+                    attachment_multipart = attachment_multipart.clone().singlepart(
+                        Attachment::new(file_name).body(
+                            Body::new(file),
+                            ContentType::parse(mime_type.essence_str())
+                                .map_err(|_| MailSenderError::AttachmentContentError)?,
+                        ),
+                    );
+                } else {
                     return Err(MailSenderError::InvalidFilePath);
                 }
-
             }
         } else {
             return Err(MailSenderError::InvalidFilePath);
@@ -187,7 +202,9 @@ impl MailSender {
             .build();
 
         //send the email
-        mailer.send(&message.map_err(|e| MailSenderError::CouldntSendEmail(e))?).map_err(|e| MailSenderError::ErrorOpeningSMTP(e))?;
+        mailer
+            .send(&message.map_err(|e| MailSenderError::CouldntSendEmail(e))?)
+            .map_err(|e| MailSenderError::ErrorOpeningSMTP(e))?;
 
         Ok(())
     }
@@ -231,7 +248,9 @@ impl MailSender {
             .build();
 
         //send the email
-        mailer.send(&message.map_err(|e| MailSenderError::CouldntSendEmail(e))?).map_err(|e| MailSenderError::ErrorOpeningSMTP(e))?;
+        mailer
+            .send(&message.map_err(|e| MailSenderError::CouldntSendEmail(e))?)
+            .map_err(|e| MailSenderError::ErrorOpeningSMTP(e))?;
 
         Ok(())
     }
