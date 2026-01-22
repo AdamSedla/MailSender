@@ -134,7 +134,7 @@ pub fn create_empty_mail_list(app: AppHandle) -> String {
 ";
 
     std::fs::write("mail_list.ron", EMPTY_MAIL_LIST)
-        .unwrap_or_else(|_| fail_back_system_error(app));
+        .unwrap_or_else(|_| error_of_fail_back_system(app));
 
     EMPTY_MAIL_LIST.to_string()
 }

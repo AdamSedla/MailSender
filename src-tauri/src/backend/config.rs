@@ -108,7 +108,7 @@ pub fn create_empty_config(app: AppHandle) -> String {
     settings_password: \"\",
     )";
 
-    std::fs::write("config.ron", EMPTY_CONFIG).unwrap_or_else(|_| fail_back_system_error(app));
+    std::fs::write("config.ron", EMPTY_CONFIG).unwrap_or_else(|_| error_of_fail_back_system(app));
 
     EMPTY_CONFIG.to_string()
 }

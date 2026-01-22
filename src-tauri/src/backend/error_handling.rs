@@ -179,7 +179,7 @@ pub fn error_decoding_mail_list_from_string(
     empty_mail_list()
 }
 
-pub fn fail_back_system_error(app: tauri::AppHandle) {
+pub fn error_of_fail_back_system(app: tauri::AppHandle) {
     let error_message: String =
         "Nepodařilo se uložit prázdný config/mail_list v rámci fail_back systému.".to_string();
 
