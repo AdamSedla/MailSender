@@ -204,7 +204,7 @@ pub fn save_settings_password(app: tauri::AppHandle, text: String) {
 pub fn save_and_close_settings_config(app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
 
-    app_state.config.lock().save_config();
+    app_state.config.lock().save_config(app.clone());
 
     close_settings_config()
 }
@@ -213,7 +213,7 @@ pub fn save_and_close_settings_config(app: tauri::AppHandle) -> String {
 pub fn discard_and_close_settings_config(app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
 
-    *app_state.config.lock() = Config::load_config();
+    *app_state.config.lock() = Config::load_config(app.clone());
 
     close_settings_config()
 }

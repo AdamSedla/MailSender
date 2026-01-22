@@ -143,10 +143,10 @@ pub fn run() {
         .setup(|app| {
             app.manage(AppState {
                 mail: MailSender::default().into(),
-                mail_list: MailList::load_list().into(),
+                mail_list: MailList::load_list(app.app_handle().clone()).into(),
                 other_mail_list: OtherMailList::default().into(),
                 settings_current_person_id: None.into(),
-                config: Config::load_config().into(),
+                config: Config::load_config(app.app_handle().clone()).into(),
             });
             Ok(())
         })

@@ -1,5 +1,11 @@
 use lettre::Address;
 use serde::{Deserialize, Serialize};
+use tauri::AppHandle;
+
+use crate::backend::error_handling::{
+    error_decoding_mail_list_from_string, error_loading_mail_list,
+    error_parsing_mail_list_to_string, error_saving_mail_list, fail_back_system_error,
+};
 
 //---------------------------
 
@@ -15,7 +21,7 @@ pub struct MailList {
 }
 
 impl MailList {
-    pub fn save_list(&mut self) -> Result<(), Vec<String>> {
+    pub fn save_list(&mut self, app: AppHandle) -> Result<(), Vec<String>> {
         //will change every empty names into None
         self.list
             .iter_mut()
@@ -41,17 +47,19 @@ impl MailList {
             return Err(wrong_mail_list);
         }
 
-        let ron_string =
-            ron::ser::to_string_pretty(self, ron::ser::PrettyConfig::default()).unwrap();
+        let ron_string = ron::ser::to_string_pretty(self, ron::ser::PrettyConfig::default())
+            .unwrap_or_else(|_| error_parsing_mail_list_to_string(app.clone()));
 
-        std::fs::write("mail_list.ron", ron_string).unwrap();
+        std::fs::write("mail_list.ron", ron_string).unwrap_or_else(|_| error_saving_mail_list(app));
 
         Ok(())
     }
 
-    pub fn load_list() -> MailList {
-        let ron_string = std::fs::read_to_string("mail_list.ron").unwrap();
-        ron::de::from_str(&ron_string).unwrap()
+    pub fn load_list(app: AppHandle) -> MailList {
+        let ron_string = std::fs::read_to_string("mail_list.ron")
+            .unwrap_or_else(|_| error_loading_mail_list(app.clone()));
+        ron::de::from_str(&ron_string)
+            .unwrap_or_else(|_| error_decoding_mail_list_from_string(app, &ron_string))
     }
 
     pub fn load_person(&self, id: usize) -> Option<Person> {
@@ -84,5 +92,55 @@ impl MailList {
         person.mail = mail;
 
         self.list[id] = Some(person);
+    }
+}
+
+pub fn create_empty_mail_list(app: AppHandle) -> String {
+    static EMPTY_MAIL_LIST: &str = "
+(
+    list: [
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    ],
+)
+";
+
+    std::fs::write("mail_list.ron", EMPTY_MAIL_LIST)
+        .unwrap_or_else(|_| fail_back_system_error(app));
+
+    EMPTY_MAIL_LIST.to_string()
+}
+
+pub fn empty_mail_list() -> MailList {
+    MailList {
+        list: vec![None; 30],
     }
 }

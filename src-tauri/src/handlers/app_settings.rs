@@ -225,7 +225,7 @@ pub fn close_discard_overlay() -> String {
 pub fn discard_and_close_settings(app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
 
-    *app_state.mail_list.lock() = MailList::load_list();
+    *app_state.mail_list.lock() = MailList::load_list(app.clone());
 
     close_settings()
 }
@@ -234,7 +234,7 @@ pub fn discard_and_close_settings(app: tauri::AppHandle) -> String {
 pub fn save_and_close_settings(app: tauri::AppHandle) -> String {
     let app_state = app.state::<AppState>();
 
-    let mail_list_save = app_state.mail_list.lock().save_list();
+    let mail_list_save = app_state.mail_list.lock().save_list(app.clone());
 
     if let Err(invalid_mails) = mail_list_save {
         wrong_mail_warning(invalid_mails)

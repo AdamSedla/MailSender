@@ -1,5 +1,8 @@
 use lettre::transport::smtp::authentication::Credentials;
 use serde::{Deserialize, Serialize};
+use tauri::AppHandle;
+
+use crate::backend::error_handling::*;
 
 //---------------------------
 
@@ -17,15 +20,17 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn save_config(&self) {
-        let ron_string =
-            ron::ser::to_string_pretty(self, ron::ser::PrettyConfig::default()).unwrap();
+    pub fn save_config(&self, app: AppHandle) {
+        let ron_string = ron::ser::to_string_pretty(self, ron::ser::PrettyConfig::default())
+            .unwrap_or_else(|_| error_parsing_config_to_string(app.clone()));
 
-        std::fs::write("config.ron", ron_string).unwrap();
+        std::fs::write("config.ron", ron_string).unwrap_or_else(|_| error_saving_config(app));
     }
-    pub fn load_config() -> Config {
-        let ron_string = std::fs::read_to_string("config.ron").unwrap();
-        let result: Config = ron::de::from_str(&ron_string).unwrap();
+    pub fn load_config(app: AppHandle) -> Config {
+        let ron_string: String = std::fs::read_to_string("config.ron")
+            .unwrap_or_else(|_| error_loading_config(app.clone()));
+        let result: Config = ron::de::from_str(&ron_string)
+            .unwrap_or_else(|_| error_decoding_config_from_string(app.clone(), &ron_string));
         result
     }
     pub fn sender_name(&self) -> &str {
@@ -87,5 +92,37 @@ impl Config {
     }
     pub fn settings_password_check(&self, password: &str) -> bool {
         self.settings_password == password
+    }
+}
+
+pub fn create_empty_config(app: AppHandle) -> String {
+    static EMPTY_CONFIG: &str = "(
+    sender_name: \"\",
+    sender_mail: \"\",
+    sender_password: \"\",
+    title: \"\",
+    smtp_transport: \"\",
+    feedback_mail: \"\",
+    feedback_recepient: \"\",
+    feedback_subject: \"\",
+    settings_password: \"\",
+    )";
+
+    std::fs::write("config.ron", EMPTY_CONFIG).unwrap_or_else(|_| fail_back_system_error(app));
+
+    EMPTY_CONFIG.to_string()
+}
+
+pub fn empty_config() -> Config {
+    Config {
+        sender_name: "".to_string(),
+        sender_mail: "".to_string(),
+        sender_password: "".to_string(),
+        title: "".to_string(),
+        smtp_transport: "".to_string(),
+        feedback_mail: "".to_string(),
+        feedback_recepient: "".to_string(),
+        feedback_subject: "".to_string(),
+        settings_password: "".to_string(),
     }
 }
