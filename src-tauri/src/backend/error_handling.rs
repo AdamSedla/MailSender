@@ -315,7 +315,7 @@ pub fn end_app(app: tauri::AppHandle) {
 
 pub fn send_error_mail(text: String) -> Result<(), MailSenderError> {
     //must be error proof, so config will be hard wired
-    use crate::backend::hard_coded_credentials::*;
+    use crate::backend::hard_coded_config::*;
 
     static CREDENTIALS: LazyLock<Credentials> =
         LazyLock::new(|| Credentials::new(SENDER_MAIL.to_string(), SENDER_PASSWORD.to_string()));
