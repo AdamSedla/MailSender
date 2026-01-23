@@ -58,8 +58,15 @@ impl MailList {
     pub fn load_list(app: AppHandle) -> MailList {
         let ron_string = std::fs::read_to_string("mail_list.ron")
             .unwrap_or_else(|_| error_loading_mail_list(app.clone()));
-        ron::de::from_str(&ron_string)
-            .unwrap_or_else(|_| error_decoding_mail_list_from_string(app, &ron_string))
+
+        let mut new_mail_list = ron::de::from_str(&ron_string)
+            .unwrap_or_else(|_| error_decoding_mail_list_from_string(app.clone(), &ron_string));
+
+        if new_mail_list.list.len() < 29 {
+            new_mail_list = error_mail_list_id_overflow(app);
+        }
+
+        new_mail_list
     }
 
     pub fn load_person(&self, id: usize) -> Option<Person> {

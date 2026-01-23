@@ -179,6 +179,17 @@ pub fn error_decoding_mail_list_from_string(
     empty_mail_list()
 }
 
+pub fn error_mail_list_id_overflow(app: tauri::AppHandle) -> MailList {
+    let error_message: String = "ID > mail_list.len()".to_string();
+
+    let _ = send_error_mail(error_message);
+
+    show_error_loading_mail_list_and_continue(app.clone());
+
+    create_empty_mail_list(app.clone());
+    empty_mail_list()
+}
+
 pub fn error_of_fail_back_system(app: tauri::AppHandle) {
     let error_message: String =
         "Nepodařilo se uložit prázdný config/mail_list v rámci fail_back systému.".to_string();
