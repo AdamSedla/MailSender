@@ -2,10 +2,7 @@ use lettre::Address;
 use serde::{Deserialize, Serialize};
 use tauri::AppHandle;
 
-use crate::backend::error_handling::{
-    error_decoding_mail_list_from_string, error_loading_mail_list,
-    error_parsing_mail_list_to_string, error_saving_mail_list, fail_back_system_error,
-};
+use crate::backend::error_handling::*;
 
 //---------------------------
 
