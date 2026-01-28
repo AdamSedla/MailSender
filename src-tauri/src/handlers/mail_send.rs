@@ -1,5 +1,7 @@
+use std::thread;
+
 use maud::{html, Markup};
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 use tauri_plugin_dialog::DialogExt;
 
 use crate::backend::error_handling::{
@@ -181,24 +183,38 @@ pub fn remove_person(id: String, app: tauri::AppHandle) -> String {
 }
 
 #[tauri::command]
-pub fn pick_file(app: tauri::AppHandle) -> String {
+pub fn pick_file(app: tauri::AppHandle) {
     app.dialog().file().pick_files(move |file_path| {
         let app_state = app.state::<AppState>();
 
         if let Some(path) = file_path {
-            if app_state.mail.lock().add_file(path).is_err() {
-                error_pick_file(app);
+            if app_state.mail.lock().add_file(path.clone()).is_err() {
+                error_pick_file(app.clone());
             }
+
+            let mut file_picker_text = match path.len() {
+                1 => {
+                    let path_string = path.first().expect("path should exist").to_string();
+
+                    let file_name = path_string
+                        .split_terminator("/")
+                        .last()
+                        .expect("file name should exist");
+
+                    format!("vybráno: {}", file_name)
+                }
+                2..5 => format!("vybrány {} soubory", path.len()),
+                _ => format!("vybráno {} souborů", path.len()),
+            };
+
+            if file_picker_text.len() > 28 {
+                let shortened_text: String = file_picker_text.chars().take(27).collect();
+                file_picker_text = format!("{}...", shortened_text);
+            }
+
+            thread::spawn(move || {
+                app.emit("file_picker_text", file_picker_text).unwrap();
+            });
         }
     });
-
-    let markup: Markup = html! {
-        button.choosen-file-picker
-        hx-trigger="click"
-        hx-post="command:pick_file"
-        hx-swap="outerHTML"
-        {"soubor(y) vybrán(y)"}
-    };
-
-    markup.into_string()
 }

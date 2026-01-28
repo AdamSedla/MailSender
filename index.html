@@ -8,6 +8,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="htmx-config" content='{"selfRequestsOnly":false}' />
   <script type="module" src="/src/main.ts" defer></script>
+  <script type="module" src="/src/tauri-ext.js" defer></script>
+  <script src="/src/htmx.js" defer></script>
 
 
   <!-- Font -->
@@ -15,7 +17,7 @@
     rel="stylesheet">
 </head>
 
-<body id="app-body">
+<body hx-ext="tauri" id="app-body">
   <div class="top-bar">
     <div class="top-button-bar">
       <button class="top-bar-button" hx-post="command:open_settings_password" hx-trigger="click"
@@ -38,10 +40,11 @@
   <div id="manual-placeholder"></div>
   <div id="settings-placeholder"></div>
 
-
   <div class="bottom-bar">
-    <button class="file-picker" hx-trigger="click" hx-post="command:pick_file" hx-swap="outerHTML">výběr
-      souborů</button>
+    <button class="file-picker" hx-post="command:pick_file" hx-trigger="click">
+      <div tauri-listen="file_picker_text">výběr
+        souborů</div>
+    </button>
     <input type="image" class="truck" src="src/assets/send_truck.svg" alt="truck-icon" hx-trigger="click"
       hx-swap="outerHTML" hx-post="command:send">
   </div>
