@@ -18,12 +18,25 @@ pub fn send(app: tauri::AppHandle) -> String {
     let config = app_state.config.lock().clone();
 
     let file_valid = mail.file_is_valid();
-    let basic_list_valid = mail.person_list_is_valid();
-    let other_mail_list_valid = other_mail_list.is_valid() && !(other_mail_list.is_empty());
+    let basic_list_valid = mail.person_list_is_valid() && other_mail_list.is_empty();
+    let other_mail_list_valid = other_mail_list.is_valid() && other_mail_list.is_filled();
+
+    //Show error when sending
+    let error_message = if !other_mail_list.is_valid() {
+        "Některý E-mail v kategorii ostatní není správný."
+    } else if !(basic_list_valid || other_mail_list_valid) {
+        "Vyberte prosím příjemce před odesláním."
+    } else if !file_valid {
+        "Vyberte prosím soubor k odeslání."
+    } else {
+        ""
+    };
 
     let valid_request = file_valid && (basic_list_valid || other_mail_list_valid);
 
     if !valid_request {
+        let custom_val = format!(r#""text": "{error_message}""#);
+
         return html! {
             input.truck
             type="image"
@@ -32,6 +45,15 @@ pub fn send(app: tauri::AppHandle) -> String {
             hx-trigger="click"
             hx-post="command:send"
             {}
+
+            div.non-display
+            hx-post="command:open_send_error"
+            hx-trigger="load delay:1ms"
+            hx-target="#send-error-placeholder"
+            hx-swap="outerHTML"
+            hx-vals=(custom_val)
+            {}
+
         }
         .into_string();
     }
@@ -68,6 +90,34 @@ pub fn send(app: tauri::AppHandle) -> String {
         {}
     }
     .into_string()
+}
+
+#[tauri::command]
+pub fn open_send_error(text: String) -> String {
+    html! {
+        div .overlay .most-top #send-error-overlay{
+            div .overlay-error-window{
+                button.close-button
+                hx-post="command:close_send_error"
+                hx-trigger="click"
+                hx-target="#send-error-overlay"
+                hx-swap="outerHTML"
+                {("X")}
+                h1.overlay-error-title{(text)}
+                h2.overlay-error-subtitle{("V případě potřeby využijte návod k použití výše")}
+            }
+        }
+    }
+    .into_string()
+}
+
+#[tauri::command]
+pub fn close_send_error() -> String {
+    let markup: Markup = html! {
+        div #send-error-placeholder {}
+    };
+
+    markup.into_string()
 }
 
 #[tauri::command]

@@ -104,6 +104,8 @@ use crate::handlers::feedback::*;
 /*
 mail_send
     - send
+    - open_send_error
+    - close_send_error
     - load_mechanics
     - load_technics
     - add_person
@@ -205,7 +207,9 @@ pub fn run() {
             invalid_password_warning,
             correct_password_handler,
             mark_other,
-            unmark_other
+            unmark_other,
+            open_send_error,
+            close_send_error
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

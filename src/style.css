@@ -600,3 +600,32 @@ button:hover {
   margin-top: 12%;
   position: fixed;
 }
+
+.overlay-error-window {
+  background-color: #303C49;
+  position: fixed;
+  height: 75%;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.overlay-error-title {
+  color: red;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 40px;
+}
+
+.overlay-error-subtitle {
+  color: white;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 30px;
+}
+
+.non-display {
+  display: none;
+}

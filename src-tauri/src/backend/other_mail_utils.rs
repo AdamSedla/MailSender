@@ -94,6 +94,10 @@ impl OtherMailList {
         self.list.iter().all(|person| person.is_none())
     }
 
+    pub fn is_filled(&self) -> bool {
+        !self.is_empty()
+    }
+
     pub fn is_valid(&self) -> bool {
         self.list
             .iter()
