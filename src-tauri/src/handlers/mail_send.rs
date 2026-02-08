@@ -115,7 +115,7 @@ pub fn load_technics(app: tauri::AppHandle) -> String {
                 button.middle-button.placeholder{}
             }
         }
-        button.middle-button
+        button.middle-button #other-mails-button
         hx-post="command:open_other"
         hx-trigger="click"
         hx-target="#overlay-other-placeholder"

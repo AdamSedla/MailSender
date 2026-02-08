@@ -132,6 +132,8 @@ other_mail
     - add_other_mail_row
     - remove_other_row
     - edit_mail
+    - mark_other
+    - unmark_other
 */
 use crate::handlers::other_mail::*;
 
@@ -201,7 +203,9 @@ pub fn run() {
             close_discard_overlay,
             check_password,
             invalid_password_warning,
-            correct_password_handler
+            correct_password_handler,
+            mark_other,
+            unmark_other
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

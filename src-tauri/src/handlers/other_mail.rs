@@ -98,13 +98,60 @@ pub fn remove_other_row(app: tauri::AppHandle, index: String) -> String {
 
 #[tauri::command]
 pub fn close_other(app: tauri::AppHandle) -> String {
-    let markup: Markup = html! {
-        div #overlay-other-placeholder {}
-    };
-
     let app_state = app.state::<AppState>();
 
     app_state.other_mail_list.lock().remove_empty_persons();
+
+    let has_other_mails = !app_state.other_mail_list.lock().is_empty();
+
+    let markup: Markup = html! {
+        @if has_other_mails {
+            div #overlay-other-placeholder {}
+            div
+            hx-post="command:mark_other"
+            hx-trigger="load delay:1ms"
+            hx-target="#other-mails-button"
+            hx-swap="outerHTML"
+            {}
+        }
+        @else {
+            div #overlay-other-placeholder {}
+            div
+            hx-post="command:unmark_other"
+            hx-trigger="load delay:1ms"
+            hx-target="#other-mails-button"
+            hx-swap="outerHTML"
+            {}
+        }
+    };
+
+    markup.into_string()
+}
+
+#[tauri::command]
+pub fn mark_other() -> String {
+    let markup: Markup = html! {
+        button.middle-button .clicked #other-mails-button
+        hx-post="command:open_other"
+        hx-trigger="click"
+        hx-target="#overlay-other-placeholder"
+        hx-swap="outerHTML"
+        {("ostatní...")}
+    };
+
+    markup.into_string()
+}
+
+#[tauri::command]
+pub fn unmark_other() -> String {
+    let markup: Markup = html! {
+        button.middle-button #other-mails-button
+        hx-post="command:open_other"
+        hx-trigger="click"
+        hx-target="#overlay-other-placeholder"
+        hx-swap="outerHTML"
+        {("ostatní...")}
+    };
 
     markup.into_string()
 }
