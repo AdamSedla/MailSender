@@ -85,7 +85,7 @@ pub fn correct_password_handler() -> String {
     let markup: Markup = html! {
         div
         hx-trigger="load delay:1ms"
-        hx-swap="outerHTML"
+        hx-swap="innerHTML"
         hx-post="command:open_settings"
         hx-target="#app-body"
         {}
@@ -111,7 +111,6 @@ pub fn open_settings(app: tauri::AppHandle) -> String {
     app_state.other_mail_list.lock().clear();
 
     let markup: Markup = html! {
-        body #app-body {
             div.top-bar{
                 div.top-button-bar{
                     button.top-bar-button
@@ -176,7 +175,6 @@ pub fn open_settings(app: tauri::AppHandle) -> String {
                 hx-swap="outerHTML"
                 {("zavřít bez uložení")}
             }
-            }
         }
     };
 
@@ -205,7 +203,7 @@ pub fn open_discard_overlay() -> String {
                 hx-post="command:discard_and_close_settings"
                 hx-trigger="click"
                 hx-target="#app-body"
-                hx-swap="outerHTML"
+                hx-swap="innerHTML"
                 {("odejít bez uložení")}
             }
         }
@@ -242,7 +240,7 @@ pub fn save_and_close_settings(app: tauri::AppHandle) -> String {
         html! {
             div
             hx-trigger="load delay:1ms"
-            hw-swap="outerHTML"
+            hw-swap="innerHTML"
             hx-post="command:close_settings"
             hx-target="#app-body"
             {}
@@ -286,7 +284,6 @@ pub fn close_wrong_mail_warning() -> String {
 #[tauri::command]
 pub fn close_settings() -> String {
     let markup: Markup = html! {
-        body #app-body {
             div.top-bar{
                 div.top-button-bar{
                     button.top-bar-button
@@ -329,21 +326,49 @@ pub fn close_settings() -> String {
             div #feedback-placeholder{}
             div #manual-placeholder{}
             div #settings-placeholder{}
+            div #send-error-placeholder{}
+
+            /*
+                    hx-trigger="click"
+                    hx-post="command:pick_file" {
+                        div tauri-listen="file_picker_text" {
+                            "výběr souborů"
+                        }
+                    }
+
+                input
+                    class="truck"
+                    type="image"
+                    src="src/assets/send_truck.svg"
+                    alt="truck-icon"
+                    hx-trigger="click"
+                    hx-post="command:send"
+                    hx-swap="outerHTML";
+            }
+
+
+             */
             div.bottom-bar{
                 button.file-picker
-                hx-trigger="click"
                 hx-post="command:pick_file"
-                hx-swap="outerHTML"
-                {("výběr souboru")}
+                hx-trigger="click"
+                {div tauri-listen="file_picker_text" {"výběr souborů"}}
+                //hx-swap="outerHTML"
+                //{("výběr souboru")}
+               /*  {
+                    div
+                    tauri-listen="file_picker_text"
+                    { ("výběr souborů") }
+                } */
+                //      <div tauri-listen="file_picker_text">výběr souborů</div>
                 input.truck
                 type="image"
                 src="src/assets/send_truck.svg"
                 alt="truck-icon"
                 hx-trigger="click"
-                hx-post="command:send"
                 hx-swap="outerHTML"
+                hx-post="command:send"
                 {}
-            }
         }
     };
     markup.into_string()

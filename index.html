@@ -43,8 +43,7 @@
 
   <div class="bottom-bar">
     <button class="file-picker" hx-post="command:pick_file" hx-trigger="click">
-      <div tauri-listen="file_picker_text">výběr
-        souborů</div>
+      <div tauri-listen="file_picker_text">výběr souborů</div>
     </button>
     <input type="image" class="truck" src="src/assets/send_truck.svg" alt="truck-icon" hx-trigger="click"
       hx-swap="outerHTML" hx-post="command:send">
