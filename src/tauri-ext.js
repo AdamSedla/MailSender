@@ -21,6 +21,18 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     },
   });
+
+  // after swapping the body, redo all the listeners
+  //generated using AI
+  htmx.on("#app-body", "htmx:afterSwap", (event) => {
+    const swappedElement = event.detail.target;
+    
+    registerTauriListeners(swappedElement);
+    registerInvokeTiggers(swappedElement);
+    registerTauriEmitters(swappedElement);
+  });
+
+
 });
 
 function registerInvokeTiggers(parent) {
