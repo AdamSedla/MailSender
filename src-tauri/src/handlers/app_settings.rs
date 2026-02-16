@@ -240,7 +240,7 @@ pub fn save_and_close_settings(app: tauri::AppHandle) -> String {
         html! {
             div
             hx-trigger="load delay:1ms"
-            hw-swap="innerHTML"
+            hx-swap="innerHTML"
             hx-post="command:close_settings"
             hx-target="#app-body"
             {}
