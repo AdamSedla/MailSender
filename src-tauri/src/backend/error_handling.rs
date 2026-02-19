@@ -199,7 +199,7 @@ pub fn error_of_fail_back_system(app: tauri::AppHandle) {
     show_unexpected_user_error_and_quit(app)
 }
 
-pub fn show_error_saving_config_and_continue(app: tauri::AppHandle) {
+fn show_error_saving_config_and_continue(app: tauri::AppHandle) {
     static ERROR_MESSAGE_TITLE: &str = "Došlo k chybě při ukládání configuračního souboru";
     static ERROR_MESSAGE_TEXT: &str = "Nebylo možné uložit config.\n\nAutor aplikace byl informován.\n\nInformujte prosím vedoucího.";
 
@@ -214,7 +214,7 @@ pub fn show_error_saving_config_and_continue(app: tauri::AppHandle) {
         });
 }
 
-pub fn show_error_saving_mail_list_and_continue(app: tauri::AppHandle) {
+fn show_error_saving_mail_list_and_continue(app: tauri::AppHandle) {
     static ERROR_MESSAGE_TITLE: &str = "Došlo k chybě při ukládání seznamu osob";
     static ERROR_MESSAGE_TEXT: &str = "Nebylo možné uložit seznam osob.\n\nAutor aplikace byl informován.\n\nInformujte prosím vedoucího.";
 
@@ -229,7 +229,7 @@ pub fn show_error_saving_mail_list_and_continue(app: tauri::AppHandle) {
         });
 }
 
-pub fn show_error_loading_config_and_continue(app: tauri::AppHandle) {
+fn show_error_loading_config_and_continue(app: tauri::AppHandle) {
     static ERROR_MESSAGE_TITLE: &str = "Došlo k chybě při načítání configuračního souboru";
     static ERROR_MESSAGE_TEXT: &str = "Nebylo možné načíst config.\n\nAutor aplikace byl informován.\n\nInformujte prosím vedoucího.";
 
@@ -244,7 +244,7 @@ pub fn show_error_loading_config_and_continue(app: tauri::AppHandle) {
         });
 }
 
-pub fn show_error_loading_mail_list_and_continue(app: tauri::AppHandle) {
+fn show_error_loading_mail_list_and_continue(app: tauri::AppHandle) {
     static ERROR_MESSAGE_TITLE: &str = "Došlo k chybě při načítání seznamu osob";
     static ERROR_MESSAGE_TEXT: &str = "Nebylo možné načíst seznam osob.\n\nAutor aplikace byl informován.\n\nInformujte prosím vedoucího.";
 
@@ -259,7 +259,7 @@ pub fn show_error_loading_mail_list_and_continue(app: tauri::AppHandle) {
         });
 }
 
-pub fn show_file_pick_user_error_and_continue(app: tauri::AppHandle) {
+fn show_file_pick_user_error_and_continue(app: tauri::AppHandle) {
     static ERROR_MESSAGE_TITLE: &str = "Došlo k chybě při výběru souboru";
     static ERROR_MESSAGE_TEXT: &str = "Nebylo možné vybrat soubor.\n\nAutor aplikace byl informován.\n\nInformujte prosím vedoucího.";
 
@@ -274,7 +274,7 @@ pub fn show_file_pick_user_error_and_continue(app: tauri::AppHandle) {
         });
 }
 
-pub fn show_connection_user_error_and_continue(app: tauri::AppHandle) {
+fn show_connection_user_error_and_continue(app: tauri::AppHandle) {
     static ERROR_MESSAGE_TITLE: &str = "Došlo k chybě při odesílání E-mailu";
     static ERROR_MESSAGE_TEXT: &str =
         "Aplikace pravděpodobně nemá přístup k internetu.\n\nInformujte prosím vedoucího.";
@@ -290,7 +290,7 @@ pub fn show_connection_user_error_and_continue(app: tauri::AppHandle) {
         });
 }
 
-pub fn show_sending_user_error_and_continue(app: tauri::AppHandle) {
+fn show_sending_user_error_and_continue(app: tauri::AppHandle) {
     static ERROR_MESSAGE_TITLE: &str = "Došlo k chybě při odesílání E-mailu";
     static ERROR_MESSAGE_TEXT: &str = "Nebylo možné odeslat E-mail.\n\nAutor aplikace byl informován.\n\nInformujte prosím vedoucího.";
 
@@ -305,7 +305,7 @@ pub fn show_sending_user_error_and_continue(app: tauri::AppHandle) {
         });
 }
 
-pub fn show_unexpected_user_error_and_quit(app: tauri::AppHandle) {
+fn show_unexpected_user_error_and_quit(app: tauri::AppHandle) {
     static ERROR_MESSAGE_TITLE: &str = "Došlo k chybě při běhu aplikace";
     static ERROR_MESSAGE_TEXT: &str = "Při běhu aplikace došlo k neočekávané chybě.\n\nAutorovi aplikace byl odeslán E-mail.\n\nInformujte prosím vedoucího.";
 
@@ -320,11 +320,11 @@ pub fn show_unexpected_user_error_and_quit(app: tauri::AppHandle) {
         });
 }
 
-pub fn end_app(app: tauri::AppHandle) {
+fn end_app(app: tauri::AppHandle) {
     app.exit(0);
 }
 
-pub fn send_error_mail(text: String) -> Result<(), MailSenderError> {
+fn send_error_mail(text: String) -> Result<(), MailSenderError> {
     //must be error proof, so config will be hard wired
     use crate::backend::hard_coded_config::*;
 
