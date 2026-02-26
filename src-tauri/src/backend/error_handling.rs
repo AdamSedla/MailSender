@@ -3,6 +3,8 @@ use lettre::transport::smtp::authentication::Credentials;
 use lettre::transport::smtp::SmtpTransport;
 use lettre::transport::Transport;
 use lettre::{Address, Message};
+use std::env;
+use std::path::PathBuf;
 use std::sync::LazyLock;
 use tauri::Manager;
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
@@ -326,39 +328,46 @@ fn end_app(app: tauri::AppHandle) {
 
 fn send_error_mail(text: String) -> Result<(), MailSenderError> {
     //must be error proof, so config will be hard wired
-    use crate::backend::hard_coded_config::*;
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("hard_coded_config.env");
+    dotenv::from_path(&path).ok();
 
-    static CREDENTIALS: LazyLock<Credentials> =
-        LazyLock::new(|| Credentials::new(SENDER_MAIL.to_string(), SENDER_PASSWORD.to_string()));
+    let credentials: LazyLock<Credentials> = LazyLock::new(|| {
+        Credentials::new(
+            env::var("SENDER_MAIL").unwrap(),
+            env::var("SENDER_PASSWORD").unwrap(),
+        )
+    });
 
     let mut message_builder = Message::builder();
 
     //sender
     message_builder = message_builder.from(Mailbox::new(
-        Some(SENDER_NAME.to_string()),
-        SENDER_MAIL
+        Some(env::var("SENDER_NAME").unwrap()),
+        env::var("SENDER_MAIL")
+            .unwrap()
             .parse()
             .map_err(|_| MailSenderError::ErrorSendingFeedbackMail)?,
     ));
 
     //recepient
     message_builder = message_builder.to(Mailbox::new(
-        Some(RECEPIENT_NAME.to_string()),
-        RECEPIENT_MAIL
+        Some(env::var("RECEPIENT_NAME").unwrap()),
+        env::var("RECEPIENT_MAIL")
+            .unwrap()
             .parse()
             .map_err(|_| MailSenderError::ErrorSendingFeedbackMail)?,
     ));
 
     //subject
-    message_builder = message_builder.subject(TITLE);
+    message_builder = message_builder.subject(env::var("TITLE").unwrap());
 
     //body
     let message = message_builder.body(text);
 
     // open a remote connection to gmail
-    let mailer = SmtpTransport::relay(SMTP_TRANSPORT)
+    let mailer = SmtpTransport::relay(env::var("SMTP_TRANSPORT").unwrap().as_str())
         .map_err(|_| MailSenderError::NoRemoteConnection)?
-        .credentials(CREDENTIALS.clone())
+        .credentials(credentials.clone())
         .build();
 
     //send the email

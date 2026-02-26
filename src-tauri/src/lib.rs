@@ -12,7 +12,6 @@ use tauri::Manager;
 mod backend {
     pub mod config;
     pub mod error_handling;
-    pub mod hard_coded_config;
     pub mod mail_list_utils;
     pub mod mail_sender;
     pub mod other_mail_utils;

@@ -10,4 +10,4 @@ node_modules
 dist
 pnpm-lock.yaml
 .vscode
-hard_coded_config.rs
+*.env
