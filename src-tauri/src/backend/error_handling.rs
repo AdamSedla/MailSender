@@ -200,6 +200,15 @@ pub fn error_of_fail_back_system(app: tauri::AppHandle) {
     show_unexpected_user_error_and_quit(app)
 }
 
+pub fn error_showing_file_name(app: tauri::AppHandle) {
+    let error_message: String =
+        "Nepodařilo se zobrazit název vybraného souboru na frontendu".to_string();
+
+    let _ = send_error_mail(error_message, app.clone());
+
+    show_error_showing_file_name_and_continue(app);
+}
+
 pub fn error_failback_config(app: tauri::AppHandle) -> String {
     show_error_mail_error_and_continue(app);
     "".to_string()
@@ -323,6 +332,21 @@ fn show_unexpected_user_error_and_quit(app: tauri::AppHandle) {
         .show(|result| match result {
             true => end_app(app),
             false => end_app(app),
+        });
+}
+
+fn show_error_showing_file_name_and_continue(app: tauri::AppHandle) {
+    static ERROR_MESSAGE_TITLE: &str = "Došlo k chybě při běhu aplikace";
+    static ERROR_MESSAGE_TEXT: &str = "Při zobrazování názvu vybraného souboru došlo k chybě.\n\nAutorovi aplikace byl odeslán E-mail.\n\nInformujte prosím vedoucího.";
+
+    app.dialog()
+        .message(ERROR_MESSAGE_TEXT.to_string())
+        .kind(MessageDialogKind::Info)
+        .title(ERROR_MESSAGE_TITLE.to_string())
+        .buttons(MessageDialogButtons::OkCustom("OK".to_string()))
+        .show(|result| match result {
+            true => (),
+            false => (),
         });
 }
 

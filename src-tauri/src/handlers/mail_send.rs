@@ -5,7 +5,7 @@ use tauri::{Emitter, Manager};
 use tauri_plugin_dialog::DialogExt;
 
 use crate::backend::error_handling::{
-    error_id_parse, error_load_person, error_pick_file, error_sending_mail,
+    error_id_parse, error_load_person, error_pick_file, error_sending_mail, error_showing_file_name,
 };
 use crate::AppState;
 //---------------------------
@@ -263,7 +263,8 @@ pub fn pick_file(app: tauri::AppHandle) {
             }
 
             thread::spawn(move || {
-                app.emit("file_picker_text", file_picker_text).unwrap();
+                app.emit("file_picker_text", file_picker_text)
+                    .unwrap_or_else(|_| error_showing_file_name(app));
             });
         }
     });
