@@ -251,7 +251,7 @@ pub fn pick_file(app: tauri::AppHandle) {
                         .last()
                         .expect("file name should exist");
 
-                    format!("vybráno: {}", file_name)
+                    format!("vybráno: {file_name}")
                 }
                 2..5 => format!("vybrány {} soubory", path.len()),
                 _ => format!("vybráno {} souborů", path.len()),
@@ -259,7 +259,7 @@ pub fn pick_file(app: tauri::AppHandle) {
 
             if file_picker_text.len() > 28 {
                 let shortened_text: String = file_picker_text.chars().take(27).collect();
-                file_picker_text = format!("{}...", shortened_text);
+                file_picker_text = format!("{shortened_text}...");
             }
 
             thread::spawn(move || {

@@ -129,10 +129,10 @@ impl MailSender {
         });
 
         if mail.people.is_empty() {
-            return Err(MailSenderError::NoRecipients.into());
+            return Err(MailSenderError::NoRecipients);
         }
         if mail.files.is_none() {
-            return Err(MailSenderError::NoFile.into());
+            return Err(MailSenderError::NoFile);
         }
 
         let mut message_builder = Message::builder();
@@ -203,8 +203,8 @@ impl MailSender {
 
         //send the email
         mailer
-            .send(&message.map_err(|e| MailSenderError::CouldntSendEmail(e))?)
-            .map_err(|e| MailSenderError::ErrorOpeningSMTP(e))?;
+            .send(&message.map_err(MailSenderError::CouldntSendEmail)?)
+            .map_err(MailSenderError::ErrorOpeningSMTP)?;
 
         Ok(())
     }
@@ -249,8 +249,8 @@ impl MailSender {
 
         //send the email
         mailer
-            .send(&message.map_err(|e| MailSenderError::CouldntSendEmail(e))?)
-            .map_err(|e| MailSenderError::ErrorOpeningSMTP(e))?;
+            .send(&message.map_err(MailSenderError::CouldntSendEmail)?)
+            .map_err(MailSenderError::ErrorOpeningSMTP)?;
 
         Ok(())
     }

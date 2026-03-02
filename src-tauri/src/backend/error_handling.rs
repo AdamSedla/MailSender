@@ -15,7 +15,7 @@ use crate::AppState;
 
 //---------------------------
 pub fn error_pick_file(app: tauri::AppHandle) {
-    let error_message: String = format!("Došlo k chybě při výběru souboru.");
+    let error_message: String = "Došlo k chybě při výběru souboru.".to_string();
 
     let _ = send_error_mail(error_message, app.clone());
 
@@ -69,7 +69,7 @@ pub fn error_parsing_mail_address(app: tauri::AppHandle, original_mail: String) 
     let _ = send_error_mail(error_message, app);
 
     //error@error is valid Addres, so else block is unreachable
-    Address::new("error".to_string(), "error".to_string()).unwrap_or_else(|_| unreachable!())
+    Address::new("error", "error").unwrap_or_else(|_| unreachable!())
 }
 
 pub fn error_saving_config(app: tauri::AppHandle) {
@@ -103,7 +103,7 @@ pub fn error_saving_mail_list(app: tauri::AppHandle) {
 }
 
 pub fn error_loading_config(app: tauri::AppHandle) -> String {
-    let error_message: String = format!("Nepodařilo se načíst config.");
+    let error_message: String = "Nepodařilo se načíst config.".to_string();
 
     let _ = send_error_mail(error_message, app.clone());
 
@@ -113,7 +113,7 @@ pub fn error_loading_config(app: tauri::AppHandle) -> String {
 }
 
 pub fn error_loading_mail_list(app: tauri::AppHandle) -> String {
-    let error_message: String = format!("Nepodařilo se načíst mail_list.");
+    let error_message: String = "Nepodařilo se načíst mail_list.".to_string();
 
     let _ = send_error_mail(error_message, app.clone());
 
@@ -153,7 +153,7 @@ pub fn error_parsing_mail_list_to_string(app: tauri::AppHandle) -> String {
 }
 
 pub fn error_decoding_config_from_string(app: tauri::AppHandle, raw_config: &str) -> Config {
-    let error_message: String = format!("Nepodařilo se dekodovat config.\nConfig:\n{}", raw_config);
+    let error_message: String = format!("Nepodařilo se dekodovat config.\nConfig:\n{raw_config}");
 
     let _ = send_error_mail(error_message, app.clone());
 
@@ -167,10 +167,8 @@ pub fn error_decoding_mail_list_from_string(
     app: tauri::AppHandle,
     raw_mail_list: &str,
 ) -> MailList {
-    let error_message: String = format!(
-        "Nepodařilo se dekodovat mail_list.\nMail_list:\n{}",
-        raw_mail_list
-    );
+    let error_message: String =
+        format!("Nepodařilo se dekodovat mail_list.\nMail_list:\n{raw_mail_list}");
 
     let _ = send_error_mail(error_message, app.clone());
 
@@ -223,10 +221,7 @@ fn show_error_saving_config_and_continue(app: tauri::AppHandle) {
         .kind(MessageDialogKind::Info)
         .title(ERROR_MESSAGE_TITLE.to_string())
         .buttons(MessageDialogButtons::OkCustom("OK".to_string()))
-        .show(|result| match result {
-            true => (),
-            false => (),
-        });
+        .show(|result| if result {});
 }
 
 fn show_error_saving_mail_list_and_continue(app: tauri::AppHandle) {
@@ -238,10 +233,7 @@ fn show_error_saving_mail_list_and_continue(app: tauri::AppHandle) {
         .kind(MessageDialogKind::Info)
         .title(ERROR_MESSAGE_TITLE.to_string())
         .buttons(MessageDialogButtons::OkCustom("OK".to_string()))
-        .show(|result| match result {
-            true => (),
-            false => (),
-        });
+        .show(|result| if result {});
 }
 
 fn show_error_loading_config_and_continue(app: tauri::AppHandle) {
@@ -253,10 +245,7 @@ fn show_error_loading_config_and_continue(app: tauri::AppHandle) {
         .kind(MessageDialogKind::Info)
         .title(ERROR_MESSAGE_TITLE.to_string())
         .buttons(MessageDialogButtons::OkCustom("OK".to_string()))
-        .show(|result| match result {
-            true => (),
-            false => (),
-        });
+        .show(|result| if result {});
 }
 
 fn show_error_loading_mail_list_and_continue(app: tauri::AppHandle) {
@@ -268,10 +257,7 @@ fn show_error_loading_mail_list_and_continue(app: tauri::AppHandle) {
         .kind(MessageDialogKind::Info)
         .title(ERROR_MESSAGE_TITLE.to_string())
         .buttons(MessageDialogButtons::OkCustom("OK".to_string()))
-        .show(|result| match result {
-            true => (),
-            false => (),
-        });
+        .show(|result| if result {});
 }
 
 fn show_file_pick_user_error_and_continue(app: tauri::AppHandle) {
@@ -283,10 +269,7 @@ fn show_file_pick_user_error_and_continue(app: tauri::AppHandle) {
         .kind(MessageDialogKind::Info)
         .title(ERROR_MESSAGE_TITLE.to_string())
         .buttons(MessageDialogButtons::OkCustom("OK".to_string()))
-        .show(|result| match result {
-            true => (),
-            false => (),
-        });
+        .show(|result| if result {});
 }
 
 fn show_connection_user_error_and_continue(app: tauri::AppHandle) {
@@ -299,10 +282,7 @@ fn show_connection_user_error_and_continue(app: tauri::AppHandle) {
         .kind(MessageDialogKind::Info)
         .title(ERROR_MESSAGE_TITLE.to_string())
         .buttons(MessageDialogButtons::OkCustom("OK".to_string()))
-        .show(|result| match result {
-            true => (),
-            false => (),
-        });
+        .show(|result| if result {});
 }
 
 fn show_sending_user_error_and_continue(app: tauri::AppHandle) {
@@ -314,10 +294,7 @@ fn show_sending_user_error_and_continue(app: tauri::AppHandle) {
         .kind(MessageDialogKind::Info)
         .title(ERROR_MESSAGE_TITLE.to_string())
         .buttons(MessageDialogButtons::OkCustom("OK".to_string()))
-        .show(|result| match result {
-            true => (),
-            false => (),
-        });
+        .show(|result| if result {});
 }
 
 fn show_unexpected_user_error_and_quit(app: tauri::AppHandle) {
@@ -344,10 +321,7 @@ fn show_error_showing_file_name_and_continue(app: tauri::AppHandle) {
         .kind(MessageDialogKind::Info)
         .title(ERROR_MESSAGE_TITLE.to_string())
         .buttons(MessageDialogButtons::OkCustom("OK".to_string()))
-        .show(|result| match result {
-            true => (),
-            false => (),
-        });
+        .show(|result| if result {});
 }
 
 fn show_error_mail_error_and_continue(app: tauri::AppHandle) {
@@ -362,10 +336,7 @@ fn show_error_mail_error_and_continue(app: tauri::AppHandle) {
         .kind(MessageDialogKind::Info)
         .title(ERROR_MESSAGE_TITLE.to_string())
         .buttons(MessageDialogButtons::OkCustom("OK".to_string()))
-        .show(|result| match result {
-            true => (),
-            false => (),
-        });
+        .show(|result| if result {});
 }
 
 fn end_app(app: tauri::AppHandle) {
