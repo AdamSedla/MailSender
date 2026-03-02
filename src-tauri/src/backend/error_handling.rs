@@ -5,7 +5,6 @@ use lettre::transport::Transport;
 use lettre::{Address, Message};
 use std::env;
 use std::path::PathBuf;
-use std::sync::LazyLock;
 use tauri::Manager;
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 
@@ -18,7 +17,7 @@ use crate::AppState;
 pub fn error_pick_file(app: tauri::AppHandle) {
     let error_message: String = format!("Došlo k chybě při výběru souboru.");
 
-    let _ = send_error_mail(error_message);
+    let _ = send_error_mail(error_message, app.clone());
 
     show_file_pick_user_error_and_continue(app);
 }
@@ -34,7 +33,7 @@ pub fn error_sending_mail(app: tauri::AppHandle, error: MailSenderError) {
         }
     }
 
-    let _ = send_error_mail(error_message);
+    let _ = send_error_mail(error_message, app.clone());
 
     show_sending_user_error_and_continue(app);
 }
@@ -43,7 +42,7 @@ pub fn error_load_person(app: tauri::AppHandle, original_id: usize) -> String {
     let error_message: String =
         format!("Neúspěšný pokus o načtení osoby z databáze. ID této osoby: {original_id}");
 
-    let _ = send_error_mail(error_message);
+    let _ = send_error_mail(error_message, app.clone());
 
     show_unexpected_user_error_and_quit(app);
 
@@ -54,7 +53,7 @@ pub fn error_id_parse(app: tauri::AppHandle, original_id: String) -> usize {
     let error_message: String =
         format!("Neúspěšný pokus o ID_parse. originální String: {original_id}");
 
-    let _ = send_error_mail(error_message);
+    let _ = send_error_mail(error_message, app.clone());
 
     show_unexpected_user_error_and_quit(app);
 
@@ -65,9 +64,9 @@ pub fn error_parsing_mail_address(app: tauri::AppHandle, original_mail: String) 
     let error_message: String =
         format!("Neúspěšný pokus o parse E-mailové adresy. originální String: {original_mail}");
 
-    show_unexpected_user_error_and_quit(app);
+    show_unexpected_user_error_and_quit(app.clone());
 
-    let _ = send_error_mail(error_message);
+    let _ = send_error_mail(error_message, app);
 
     //error@error is valid Addres, so else block is unreachable
     Address::new("error".to_string(), "error".to_string()).unwrap_or_else(|_| unreachable!())
@@ -83,7 +82,7 @@ pub fn error_saving_config(app: tauri::AppHandle) {
         app_state.config
     );
 
-    let _ = send_error_mail(error_message);
+    let _ = send_error_mail(error_message, app.clone());
 
     show_error_saving_config_and_continue(app);
 }
@@ -98,7 +97,7 @@ pub fn error_saving_mail_list(app: tauri::AppHandle) {
         app_state.mail_list
     );
 
-    let _ = send_error_mail(error_message);
+    let _ = send_error_mail(error_message, app.clone());
 
     show_error_saving_mail_list_and_continue(app);
 }
@@ -106,7 +105,7 @@ pub fn error_saving_mail_list(app: tauri::AppHandle) {
 pub fn error_loading_config(app: tauri::AppHandle) -> String {
     let error_message: String = format!("Nepodařilo se načíst config.");
 
-    let _ = send_error_mail(error_message);
+    let _ = send_error_mail(error_message, app.clone());
 
     show_error_loading_config_and_continue(app.clone());
 
@@ -116,7 +115,7 @@ pub fn error_loading_config(app: tauri::AppHandle) -> String {
 pub fn error_loading_mail_list(app: tauri::AppHandle) -> String {
     let error_message: String = format!("Nepodařilo se načíst mail_list.");
 
-    let _ = send_error_mail(error_message);
+    let _ = send_error_mail(error_message, app.clone());
 
     show_error_loading_mail_list_and_continue(app.clone());
 
@@ -131,7 +130,7 @@ pub fn error_parsing_config_to_string(app: tauri::AppHandle) -> String {
         app_state.config
     );
 
-    let _ = send_error_mail(error_message);
+    let _ = send_error_mail(error_message, app.clone());
 
     show_error_saving_config_and_continue(app);
 
@@ -146,7 +145,7 @@ pub fn error_parsing_mail_list_to_string(app: tauri::AppHandle) -> String {
         app_state.mail_list
     );
 
-    let _ = send_error_mail(error_message);
+    let _ = send_error_mail(error_message, app.clone());
 
     show_error_saving_mail_list_and_continue(app);
 
@@ -156,7 +155,7 @@ pub fn error_parsing_mail_list_to_string(app: tauri::AppHandle) -> String {
 pub fn error_decoding_config_from_string(app: tauri::AppHandle, raw_config: &str) -> Config {
     let error_message: String = format!("Nepodařilo se dekodovat config.\nConfig:\n{}", raw_config);
 
-    let _ = send_error_mail(error_message);
+    let _ = send_error_mail(error_message, app.clone());
 
     show_error_loading_config_and_continue(app.clone());
 
@@ -173,7 +172,7 @@ pub fn error_decoding_mail_list_from_string(
         raw_mail_list
     );
 
-    let _ = send_error_mail(error_message);
+    let _ = send_error_mail(error_message, app.clone());
 
     show_error_loading_mail_list_and_continue(app.clone());
 
@@ -184,7 +183,7 @@ pub fn error_decoding_mail_list_from_string(
 pub fn error_mail_list_id_overflow(app: tauri::AppHandle) -> MailList {
     let error_message: String = "ID > mail_list.len()".to_string();
 
-    let _ = send_error_mail(error_message);
+    let _ = send_error_mail(error_message, app.clone());
 
     show_error_loading_mail_list_and_continue(app.clone());
 
@@ -196,9 +195,14 @@ pub fn error_of_fail_back_system(app: tauri::AppHandle) {
     let error_message: String =
         "Nepodařilo se uložit prázdný config/mail_list v rámci fail_back systému.".to_string();
 
-    let _ = send_error_mail(error_message);
+    let _ = send_error_mail(error_message, app.clone());
 
     show_unexpected_user_error_and_quit(app)
+}
+
+pub fn error_failback_config(app: tauri::AppHandle) -> String {
+    show_error_mail_error_and_continue(app);
+    "".to_string()
 }
 
 fn show_error_saving_config_and_continue(app: tauri::AppHandle) {
@@ -322,53 +326,77 @@ fn show_unexpected_user_error_and_quit(app: tauri::AppHandle) {
         });
 }
 
+fn show_error_mail_error_and_continue(app: tauri::AppHandle) {
+    //this can continue. If the error was severe enough, the original error handler would end the app.
+
+    static ERROR_MESSAGE_TITLE: &str = "Došlo k chybě při běhu aplikace";
+    static ERROR_MESSAGE_TEXT: &str =
+        "Při odesílání chybového E-mailu došlo k chybě.\n\nInformujte prosím vedoucího.";
+
+    app.dialog()
+        .message(ERROR_MESSAGE_TEXT.to_string())
+        .kind(MessageDialogKind::Info)
+        .title(ERROR_MESSAGE_TITLE.to_string())
+        .buttons(MessageDialogButtons::OkCustom("OK".to_string()))
+        .show(|result| match result {
+            true => (),
+            false => (),
+        });
+}
+
 fn end_app(app: tauri::AppHandle) {
     app.exit(0);
 }
 
-fn send_error_mail(text: String) -> Result<(), MailSenderError> {
+fn send_error_mail(text: String, app: tauri::AppHandle) -> Result<(), MailSenderError> {
     //must be error proof, so config will be hard wired
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("hard_coded_config.env");
     dotenv::from_path(&path).ok();
 
-    let credentials: LazyLock<Credentials> = LazyLock::new(|| {
-        Credentials::new(
-            env::var("SENDER_MAIL").unwrap(),
-            env::var("SENDER_PASSWORD").unwrap(),
-        )
-    });
+    let credentials_username =
+        env::var("SENDER_MAIL").unwrap_or_else(|_| error_failback_config(app.clone()));
+
+    let credentials_password =
+        env::var("SENDER_PASSWORD").unwrap_or_else(|_| error_failback_config(app.clone()));
+
+    let credentials = Credentials::new(credentials_username, credentials_password);
 
     let mut message_builder = Message::builder();
 
     //sender
     message_builder = message_builder.from(Mailbox::new(
-        Some(env::var("SENDER_NAME").unwrap()),
+        Some(env::var("SENDER_NAME").unwrap_or_else(|_| error_failback_config(app.clone()))),
         env::var("SENDER_MAIL")
-            .unwrap()
+            .unwrap_or_else(|_| error_failback_config(app.clone()))
             .parse()
             .map_err(|_| MailSenderError::ErrorSendingFeedbackMail)?,
     ));
 
     //recepient
     message_builder = message_builder.to(Mailbox::new(
-        Some(env::var("RECEPIENT_NAME").unwrap()),
+        Some(env::var("RECEPIENT_NAME").unwrap_or_else(|_| error_failback_config(app.clone()))),
         env::var("RECEPIENT_MAIL")
-            .unwrap()
+            .unwrap_or_else(|_| error_failback_config(app.clone()))
             .parse()
             .map_err(|_| MailSenderError::ErrorSendingFeedbackMail)?,
     ));
 
     //subject
-    message_builder = message_builder.subject(env::var("TITLE").unwrap());
+    message_builder = message_builder
+        .subject(env::var("TITLE").unwrap_or_else(|_| error_failback_config(app.clone())));
 
     //body
     let message = message_builder.body(text);
 
     // open a remote connection to gmail
-    let mailer = SmtpTransport::relay(env::var("SMTP_TRANSPORT").unwrap().as_str())
-        .map_err(|_| MailSenderError::NoRemoteConnection)?
-        .credentials(credentials.clone())
-        .build();
+    let mailer = SmtpTransport::relay(
+        env::var("SMTP_TRANSPORT")
+            .unwrap_or_else(|_| error_failback_config(app.clone()))
+            .as_str(),
+    )
+    .map_err(|_| MailSenderError::NoRemoteConnection)?
+    .credentials(credentials)
+    .build();
 
     //send the email
     mailer
