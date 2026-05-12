@@ -328,39 +328,12 @@ pub fn close_settings() -> String {
             div #settings-placeholder{}
             div #send-error-placeholder{}
 
-            /*
-                    hx-trigger="click"
-                    hx-post="command:pick_file" {
-                        div tauri-listen="file_picker_text" {
-                            "výběr souborů"
-                        }
-                    }
-
-                input
-                    class="truck"
-                    type="image"
-                    src="assets/send_truck.svg"
-                    alt="truck-icon"
-                    hx-trigger="click"
-                    hx-post="command:send"
-                    hx-swap="outerHTML";
-            }
-
-
-             */
             div.bottom-bar{
                 button.file-picker
                 hx-post="command:pick_file"
                 hx-trigger="click"
                 {div tauri-listen="file_picker_text" {"výběr souborů"}}
-                //hx-swap="outerHTML"
-                //{("výběr souboru")}
-               /*  {
-                    div
-                    tauri-listen="file_picker_text"
-                    { ("výběr souborů") }
-                } */
-                //      <div tauri-listen="file_picker_text">výběr souborů</div>
+
                 input.truck
                 type="image"
                 src="assets/send_truck.svg"
