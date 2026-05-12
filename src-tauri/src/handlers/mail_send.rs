@@ -40,7 +40,7 @@ pub fn send(app: tauri::AppHandle) -> String {
         return html! {
             input.truck
             type="image"
-            src="src/assets/send_truck.svg"
+            src="assets/send_truck.svg"
             alt="truck-icon"
             hx-trigger="click"
             hx-post="command:send"
@@ -70,7 +70,7 @@ pub fn send(app: tauri::AppHandle) -> String {
         return html! {
             input.truck
             type="image"
-            src="src/assets/send_truck.svg"
+            src="assets/send_truck.svg"
             alt="truck-icon"
             hx-trigger="click"
             hx-post="command:send"
@@ -82,7 +82,7 @@ pub fn send(app: tauri::AppHandle) -> String {
     html! {
         input.truck.drive-animation
         type="image"
-        src="src/assets/send_truck.svg"
+        src="assets/send_truck.svg"
         alt="truck-icon"
         hx-trigger="click"
         hx-post="command:send"

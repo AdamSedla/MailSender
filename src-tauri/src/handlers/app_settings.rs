@@ -133,7 +133,7 @@ pub fn open_settings(app: tauri::AppHandle) -> String {
                     {("návod k použití")}
                 }
                 img.man-logo
-                src="src/assets/man_logo_batch.svg"
+                src="assets/man_logo_batch.svg"
                 alt="man-logo"
                 {}
 
@@ -306,7 +306,7 @@ pub fn close_settings() -> String {
                     {("návod k použití")}
                 }
                 img.man-logo
-                src="src/assets/man_logo_batch.svg"
+                src="assets/man_logo_batch.svg"
                 alt="man-logo"
                 {}
             }
@@ -339,7 +339,7 @@ pub fn close_settings() -> String {
                 input
                     class="truck"
                     type="image"
-                    src="src/assets/send_truck.svg"
+                    src="assets/send_truck.svg"
                     alt="truck-icon"
                     hx-trigger="click"
                     hx-post="command:send"
@@ -363,7 +363,7 @@ pub fn close_settings() -> String {
                 //      <div tauri-listen="file_picker_text">výběr souborů</div>
                 input.truck
                 type="image"
-                src="src/assets/send_truck.svg"
+                src="assets/send_truck.svg"
                 alt="truck-icon"
                 hx-trigger="click"
                 hx-swap="outerHTML"
