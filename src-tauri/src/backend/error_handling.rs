@@ -1,10 +1,10 @@
+use directories::ProjectDirs;
 use lettre::message::Mailbox;
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::transport::smtp::SmtpTransport;
 use lettre::transport::Transport;
 use lettre::{Address, Message};
 use std::env;
-use std::path::PathBuf;
 use tauri::Manager;
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 
@@ -109,7 +109,14 @@ pub fn error_loading_config(app: tauri::AppHandle) -> String {
 
     show_error_loading_config_and_continue(app.clone());
 
-    create_empty_config(app)
+    let new_config_file_path = create_empty_config(app.clone());
+
+    if let Ok(new_config_read) = std::fs::read_to_string(new_config_file_path) {
+        new_config_read
+    } else {
+        error_of_fail_back_system(app);
+        "".to_string()
+    }
 }
 
 pub fn error_loading_mail_list(app: tauri::AppHandle) -> String {
@@ -159,8 +166,17 @@ pub fn error_decoding_config_from_string(app: tauri::AppHandle, raw_config: &str
 
     show_error_loading_config_and_continue(app.clone());
 
-    create_empty_config(app);
-    empty_config()
+    let new_config_file_path = create_empty_config(app);
+
+    //this will never fail as preset verified empty_config is provided
+    let new_config_loaded_string =
+        std::fs::read_to_string(new_config_file_path).unwrap_or("".to_string());
+
+    //this will never fail as preset verified empty_config is provided
+    let new_config: Config =
+        ron::de::from_str(&new_config_loaded_string).unwrap_or_else(|_| empty_config());
+
+    new_config
 }
 
 pub fn error_decoding_mail_list_from_string(
@@ -196,6 +212,20 @@ pub fn error_of_fail_back_system(app: tauri::AppHandle) {
     let _ = send_error_mail(error_message, app.clone());
 
     show_unexpected_user_error_and_quit(app)
+}
+
+pub fn error_creating_app_folder(app: tauri::AppHandle) -> ! {
+    let error_message: String =
+        "Nepodařilo se vyrobit/zjistit interní config složku aplikace".to_string();
+
+    let _ = send_error_mail(error_message, app.clone());
+
+    /* Showing error to user is pointless, as that would mean that this function must return some value (PathBuf), so app has time to show error before ending.
+     * However there is no way to create default PathBuf, that would always work.
+     * This whole error function will probably never be called, as faulting PathBuf parsing should be uncommon.
+     */
+
+    end_app(app)
 }
 
 pub fn error_showing_file_name(app: tauri::AppHandle) {
@@ -301,7 +331,8 @@ fn show_unexpected_user_error_and_quit(app: tauri::AppHandle) {
     static ERROR_MESSAGE_TITLE: &str = "Došlo k chybě při běhu aplikace";
     static ERROR_MESSAGE_TEXT: &str = "Při běhu aplikace došlo k neočekávané chybě.\n\nAutorovi aplikace byl odeslán E-mail.\n\nInformujte prosím vedoucího.";
 
-    app.dialog()
+    app.clone()
+        .dialog()
         .message(ERROR_MESSAGE_TEXT.to_string())
         .kind(MessageDialogKind::Info)
         .title(ERROR_MESSAGE_TITLE.to_string())
@@ -339,13 +370,23 @@ fn show_error_mail_error_and_continue(app: tauri::AppHandle) {
         .show(|result| if result {});
 }
 
-fn end_app(app: tauri::AppHandle) {
+fn end_app(app: tauri::AppHandle) -> ! {
+    //safe app exit
     app.exit(0);
+
+    //failback system just in case
+    std::process::exit(0)
 }
 
 fn send_error_mail(text: String, app: tauri::AppHandle) -> Result<(), MailSenderError> {
     //must be error proof, so config will be hard wired
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("hard_coded_config.env");
+
+    let app_directories = ProjectDirs::from("", "", "MailSender")
+        .unwrap_or_else(|| error_creating_app_folder(app.clone()));
+
+    let app_directory_path = app_directories.config_dir();
+
+    let path = app_directory_path.join("hard_coded_config.env");
     dotenv::from_path(&path).ok();
 
     let credentials_username =

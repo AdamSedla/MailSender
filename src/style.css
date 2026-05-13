@@ -526,6 +526,8 @@ button:hover {
   font-weight: bold;
   max-width: 700px;
   margin-left: auto;
+  display: flex;
+  align-items: center;
 }
 
 .mail-warning-rows-section {

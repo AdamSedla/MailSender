@@ -2,7 +2,7 @@ use lettre::Address;
 use serde::{Deserialize, Serialize};
 use tauri::AppHandle;
 
-use crate::backend::error_handling::*;
+use crate::backend::{config::create_app_folder_path, error_handling::*};
 
 //---------------------------
 
@@ -47,13 +47,20 @@ impl MailList {
         let ron_string = ron::ser::to_string_pretty(self, ron::ser::PrettyConfig::default())
             .unwrap_or_else(|_| error_parsing_mail_list_to_string(app.clone()));
 
-        std::fs::write("mail_list.ron", ron_string).unwrap_or_else(|_| error_saving_mail_list(app));
+        let app_folder_path = create_app_folder_path(app.clone());
+        let mail_list_file_path = app_folder_path.join("mail_list.ron");
+
+        std::fs::write(mail_list_file_path, ron_string)
+            .unwrap_or_else(|_| error_saving_mail_list(app));
 
         Ok(())
     }
 
     pub fn load_list(app: AppHandle) -> MailList {
-        let ron_string = std::fs::read_to_string("mail_list.ron")
+        let app_folder_path = create_app_folder_path(app.clone());
+        let mail_list_file_path = app_folder_path.join("mail_list.ron");
+
+        let ron_string = std::fs::read_to_string(mail_list_file_path)
             .unwrap_or_else(|_| error_loading_mail_list(app.clone()));
 
         let mut new_mail_list = ron::de::from_str(&ron_string)
@@ -137,8 +144,9 @@ pub fn create_empty_mail_list(app: AppHandle) -> String {
 )
 ";
 
-    std::fs::write("mail_list.ron", EMPTY_MAIL_LIST)
-        .unwrap_or_else(|_| error_of_fail_back_system(app));
+    let file_path = create_app_folder_path(app.clone()).join("mail_list.ron");
+
+    std::fs::write(file_path, EMPTY_MAIL_LIST).unwrap_or_else(|_| error_of_fail_back_system(app));
 
     EMPTY_MAIL_LIST.to_string()
 }

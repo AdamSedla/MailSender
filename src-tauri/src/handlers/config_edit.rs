@@ -121,6 +121,13 @@ pub fn open_settings_config(app: tauri::AppHandle) -> String {
                         value=(config.settings_password())
                         {}
                     }
+                    div.config-row{
+                        h1.config-row-title
+                        {("složka aplikace:")}
+                        div.config-row-input-field
+                        {(config.app_folder_path())}
+                        {}
+                    }
                 }
                 div.bottom-button-row{
                     button.save-config.save

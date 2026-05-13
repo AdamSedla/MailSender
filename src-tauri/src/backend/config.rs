@@ -1,3 +1,6 @@
+use directories::ProjectDirs;
+use std::{fs, path::PathBuf};
+
 use lettre::transport::smtp::authentication::Credentials;
 use serde::{Deserialize, Serialize};
 use tauri::AppHandle;
@@ -17,6 +20,7 @@ pub struct Config {
     feedback_recepient: String,
     feedback_subject: String,
     settings_password: String,
+    app_folder_path: String,
 }
 
 impl Config {
@@ -24,14 +28,25 @@ impl Config {
         let ron_string = ron::ser::to_string_pretty(self, ron::ser::PrettyConfig::default())
             .unwrap_or_else(|_| error_parsing_config_to_string(app.clone()));
 
-        std::fs::write("config.ron", ron_string).unwrap_or_else(|_| error_saving_config(app));
+        let app_folder_path = create_app_folder_path(app.clone());
+        let config_file_path = app_folder_path.join("config.ron");
+
+        std::fs::write(config_file_path, ron_string).unwrap_or_else(|_| error_saving_config(app));
     }
     pub fn load_config(app: AppHandle) -> Config {
-        let ron_string: String = std::fs::read_to_string("config.ron")
+        let app_folder_path = create_app_folder_path(app.clone());
+        let config_file_path = app_folder_path.join("config.ron");
+
+        let ron_string: String = std::fs::read_to_string(config_file_path)
             .unwrap_or_else(|_| error_loading_config(app.clone()));
-        let result: Config = ron::de::from_str(&ron_string)
+
+        let mut loaded_config: Config = ron::de::from_str(&ron_string)
             .unwrap_or_else(|_| error_decoding_config_from_string(app.clone(), &ron_string));
-        result
+
+        //this is only for display purpose
+        loaded_config.save_app_folder_path(app_folder_path.to_str().unwrap_or("").to_string());
+
+        loaded_config
     }
     pub fn sender_name(&self) -> &str {
         &self.sender_name
@@ -93,10 +108,22 @@ impl Config {
     pub fn settings_password_check(&self, password: &str) -> bool {
         self.settings_password == password
     }
+    pub fn app_folder_path(&self) -> &str {
+        &self.app_folder_path
+    }
+    pub fn save_app_folder_path(&mut self, text: String) {
+        self.app_folder_path = text;
+    }
 }
 
-pub fn create_empty_config(app: AppHandle) -> String {
-    static EMPTY_CONFIG: &str = "(
+pub fn create_empty_config(app: AppHandle) -> PathBuf {
+    let app_folder_path = create_app_folder_path(app.clone());
+    let config_file_path = app_folder_path.join("config.ron");
+    //only for display purpose
+    let app_folder_path_string = app_folder_path.to_str().unwrap_or("");
+
+    let empty_config: String = format!(
+        "(
     sender_name: \"\",
     sender_mail: \"\",
     sender_password: \"\",
@@ -106,11 +133,14 @@ pub fn create_empty_config(app: AppHandle) -> String {
     feedback_recepient: \"\",
     feedback_subject: \"\",
     settings_password: \"\",
-    )";
+    app_folder_path: \"{app_folder_path_string}\"
+    )"
+    );
 
-    std::fs::write("config.ron", EMPTY_CONFIG).unwrap_or_else(|_| error_of_fail_back_system(app));
+    std::fs::write(&config_file_path, empty_config.clone())
+        .unwrap_or_else(|_| error_of_fail_back_system(app));
 
-    EMPTY_CONFIG.to_string()
+    config_file_path
 }
 
 pub fn empty_config() -> Config {
@@ -124,5 +154,17 @@ pub fn empty_config() -> Config {
         feedback_recepient: "".to_string(),
         feedback_subject: "".to_string(),
         settings_password: "".to_string(),
+        app_folder_path: "".to_string(),
     }
+}
+
+pub fn create_app_folder_path(app: AppHandle) -> PathBuf {
+    let app_directories = ProjectDirs::from("", "", "MailSender")
+        .unwrap_or_else(|| error_creating_app_folder(app.clone()));
+
+    let app_directory_path = app_directories.config_dir();
+
+    fs::create_dir_all(app_directory_path).unwrap_or_else(|_| error_of_fail_back_system(app));
+
+    app_directory_path.to_path_buf()
 }
